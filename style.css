@@ -1,0 +1,26 @@
+:root {
+	color-scheme: light dark;
+}
+
+//necessary, or initial focus() set in script fails on FF
+:focus
+{
+	box-shadow: orange 0px 0px 1px 1px;
+	outline: none;
+}
+
+* { font-size: 100%; font-family: Arial; }
+	html, body {
+	margin: 0;      /* remove default margin */
+	//height: 100%;   /* make body fill the browser window */
+
+	//place-content: center center;
+}
+canvas {
+	width: 512px;
+	height: 512px;
+	max-width: 100%;
+	display: block;
+	border: 1px solid black;
+	//position: absolute; top: 0; left: 0;
+}
