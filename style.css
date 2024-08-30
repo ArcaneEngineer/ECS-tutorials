@@ -24,3 +24,9 @@ canvas {
 	border: 1px solid black;
 	//position: absolute; top: 0; left: 0;
 }
+
+div#instructions
+{
+	text-align: center;
+	width: 512px;
+}
