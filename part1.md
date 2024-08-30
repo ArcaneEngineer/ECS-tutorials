@@ -27,7 +27,7 @@ Each entity (slot) exists as some subset of the superset of all possible compone
 This use of [composition over inheritance](https://en.wikipedia.org/wiki/Composition_over_inheritance) offers a highly configurable system, in a way that deriving base classes via OOP inheritance **cannot** easily offer (particularly without multiple inheritance).
 
 
-# Tiny Tanks: Trivial Example
+# Tiny Tanks: A Trivial Example
 
 If we imagine a simple tanks game, where tanks can lose bits and pieces and thereby fail to drive and shoot, we see how this could have been done with arrays, functions, and _no OOP_. We'll later evolve this contrived example into something more playable.
 
@@ -145,7 +145,7 @@ As you press spacebar repeatedly, you should see messages appearing in your brow
 
 We've confirmed that our tanks' positions are updating, so let's draw them, and see them moving!
 
-## Tiny Tanks: Drawing them
+## Drawing the tanks
 
 ```
 //--- Draw / Render logic ---//
