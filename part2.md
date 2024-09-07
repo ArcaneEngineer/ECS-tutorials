@@ -1,3 +1,5 @@
+# ENTITY COMPONENT SYSTEMS: Part 2
+
 Previously, we set up a trivial example game called Tiny Tanks, that demonstrates Entity-Component System (ECS) basics, while using only C-like Javascript, i.e. we wrote the code without involving _OOP inheritance hierarchies_ of any kind.
 
 We did so because OOP inheritance is the most frequent and major stumbling block for many newcomers to ECS. We aim to continue along that path in this part, while further evolving our ECS.
@@ -552,11 +554,11 @@ Concrete explanation: before drawing each tank (any of it, body or turret) we sa
 
 With all the code in place, you should now be able to hit the space bar repeatedly and see tanks driving down the screen. This time, their turrets rotate (at different rates as per our use of `Math.random()` and our ranges), and after a while, you will also begin to see them firing bullets from their turrets.
 
-For now, the bullets don't do anything, but what is worth noticing is that no bullets appear onscren _until) they are fired by the tanks. This is due to the `isActive`-based selectiveness of our drawing function, as it individually processes each entity.
+For now, the bullets don't do anything, but what is worth noticing is that no bullets appear onscreen _until_ they are fired by the tanks. This is due to the `isActive`-based selectiveness of our drawing function.
 
 ## Conclusion
 
-This has been our first look at how an ECS can do selective processing on complex components, in both game / simulation logic as well as in rendering logic. Hopefully you begin to see how much entity _composition_ vs. the enormously more restrictive and fragile OOP approaches that some programmers use to do entity management.
+This has been our first look at how an ECS can do selective processing on complex components, in both game / simulation logic as well as in rendering logic. Hopefully you begin to see how much entity _composition_ can do, vs. the enormously more restrictive and fragile OOP approaches that some programmers use to do entity management.
 
 In future parts, we will look at how we can do this even more efficiently, by breaking the global entities list we're using now (of all indices into the various components arrays, regardless of entity type, be it tank or bullet) down into smaller sub-lists, suitable for different kinds of processing.
 

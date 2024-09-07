@@ -115,7 +115,7 @@ function allTanksTakeTheirTurns(hulls, turrets, trackLefts, trackRights)
 
 ```
 
-This is does a single frame (_turn_) of processing, for all entities we have created. 
+This runs a single frame (_turn_) of processing, for all entities we have created. 
 
 We run it by setting up all the code above in a `.js` file, and calling that function:
 
@@ -123,7 +123,7 @@ We run it by setting up all the code above in a `.js` file, and calling that fun
 allTanksTakeTheirTurns(hulls, turrets, trackLefts, trackRights);
 ```
 
-...This steps the simulation just once. Let's gives ourselves the ability to step the whole simulation by hitting the spacebar:
+...This steps the simulation just once. Let's gives ourselves the ability to step the simulation multiple times, by hitting the spacebar:
 
 ```
 let turn = 0;
@@ -227,7 +227,7 @@ Hitting spacebar repeatedly will have your tanks racing down the screen, some fa
 
 The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials).
 
-So, can we call this an ECS?  It's has some key elements, but it's not there yet. AAA games industry ECS's are vastly more complex and support a wide variety of use cases and interactions between components, entities, and other _systems_ (rendering, sound, networking, physics etc.).
+So, can we call this an ECS?  It's has some elements, but it's nowhere near there yet. AAA games industry ECS's are vastly more complex and support a wide variety of use cases and interactions between components, entities, and other _systems_ (rendering, sound, networking, physics etc.).
 
 Fundamentally, an ECS supports a superset of components, that is, all possible components for a given game design. Of that superset, each entity uses (has active) only some subset, thereby defining what that entity is and what it's capable of. Think of it like a switchboard.
 

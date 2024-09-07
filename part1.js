@@ -69,7 +69,7 @@ function renderAllTanks()
 	
 	for (let e = 0; e < ENTITIES_COUNT; e++)
 	{
-		let xPos = parseInt(GAP_BETWEEN_TANKS * (e) + GAP_BETWEEN_TANKS / 2);
+		let xPos = parseInt(GAP_BETWEEN_TANKS * e + GAP_BETWEEN_TANKS / 2);
 		let yPos = hulls[e];
 		
 		context.fillStyle = colors[e % colors.length]; //loop the color index
