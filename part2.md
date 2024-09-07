@@ -2,7 +2,7 @@
 
 Previously, we set up a trivial example game called Tiny Tanks, that demonstrates Entity-Component System (ECS) basics, while using only C-like Javascript, i.e. we wrote the code without involving _OOP inheritance hierarchies_ of any kind.
 
-We did so because OOP inheritance is the most frequent and major stumbling block for many newcomers to ECS. We aim to continue along that path in this part, while further evolving our ECS.
+We did so because OOP inheritance is the primary stumbling block for many newcomers to ECS. We will continue in this vein.
 
 ## Technical overview
 
@@ -18,11 +18,11 @@ We'll do this by implementing the following gameplay features:
 1. Turrets can turn (change heading) as tanks drive straight.
 2. Turrets can occasionally fire a bullet according to the heading of their gun.
 
-Our code in this part will grow to over 2.5x the original size (120 -> 300+ lines of code) as we generalise our ECS framework! So be warned, there is some typing ahead.
+Our code will grow to over 2.5x the original size (120 -> 300+ lines of code) as we generalise our ECS framework! So be warned, there is some typing ahead.
 
 ### How we'll beef up Component data
 
-Do you recall from [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md), that each component was no more than a single number in the arary of that component type? e.g. in the `hulls` array, at a given index (i.e. for one entity's hull), we had a single value representing the tank's `y` position, and e.g. each `track`'s single value represented its turning speed.
+Do you recall from [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md), that each component was no more than a single number in the arary of that component type? e.g. in the `hulls` array, at a given index, we had a single value representing the tank's `y` position, and e.g. each `track`'s single value represented its turning speed.
 
 Well, we now need to evolve our ECS: we'll make each component be an `object`, so that it can contain multiple values, allowing for complex components.
 
@@ -74,7 +74,7 @@ let myHull =  structuredClone(hullPrototype);
 
 ```
 
-Why use `object` literals + `structuredClone()` rather than `class` + `new Hull()`? Two reasons:
+Why use `object` literals + `structuredClone()` rather than `class` + `new Hull()`?
 
 1. **Because I do not want you getting confused by OOP inheritance, and without `class`es, there is no inheritance.** Inheritance is the single main stumbling block of ECS newbies.
 2. In C, where ECS had its roots originally, _inheritance doesn't exist_. I want you to learn the C way, so that you can implement an ECS in any language, regardless of whether or not it has OOP. OOP is _not needed_ for ECS, and indeed it is a good exercise for any programmer to learn to write code that is non-OOP.
