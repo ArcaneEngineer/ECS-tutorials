@@ -399,11 +399,11 @@ function processComponents()
 
 We see the same old loop over all entities (component indices), but the logic _inside_ the loop has changed completely. The magic here is that `updateTransform()` is no longer entity-type specific. _It is applicable to any kind of entity_ (all entities need at least a `transform` in a typical ECS).
 
-Looking at the first `if` block, we check the `isActive` status of various component arrays, `transforms` and `motions`, to see whether we can, in fact, move our current entity `e`.
+Looking at the first `if` block, we check the `isActive` status of various component arrays, `transforms` and `motions`, to see whether we can, in fact, move our current entity `e`, that is, we can only do so if it is active in both regards.
 
 In the second `if` block, we check whether the current entity `e` has an active `turret`, and if it does, we call that `turret` to update, potentially firing a bullet, or at least reducing the firing countdown until we can shoot again.
 
-Now let's look at these two new functions called inside that loop. `updateTurret` was formerly `oneTankTakesItsTurn` in [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md), but we've taken out the tank movement logic and moved it into a separate funtion, `updateTransform`:
+Now let's look at these two new functions called inside that loop. `updateTurret` was formerly `oneTankTakesItsTurn` in [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md), but we've taken out the tank movement logic and moved that into a separate function, `updateTransform`:
 
 ```
 function updateTurret(e)
@@ -468,13 +468,13 @@ You can see that each of these methods has a very specific scope and purpose -- 
 
 So, bullets eh? How will we process them? The second function  `updateTransform()` shows the entirety of what happens for bullets. It applies a basic equation of motion (velocity without acceleration) to each entity's position (`transform`), each tick of the simulation. This is another example of _inter-component, intra-entity_ interaction. In part 3, we will look also at _inter-entity_ interactions.
 
-Most interestingly, this  `updateTransform()`  is used _for both tanks and bullets_, with no knowledge of the other differences between them. It could be used for any other type of moving entity we can dream up, too. This is a strength of [composition-based]() systems like ECS. 
+Most interestingly, this  `updateTransform()`  is used _for both tanks and bullets_, with no knowledge of the other differences between them. It could be used for any other type of moving entity we can dream up. This is a major strength of [object composition-based](https://en.wikipedia.org/wiki/Composition_over_inheritance) systems like ECS. 
 
-As it happens, the conditional logic in our new `processComponents()` ECS master function neatly handles things for us: It carefully selects components that are applicable to the two different kinds of processing represented by `updateTransform` vs. `updateTurret` respectively. We will not ask a tank's `transform` to fire a bullet, nor will we ask a `turret` to move along a straight line. Instead, we process according to what kind of entity we have in hand. In future, we will generalise this code even further.
+The conditional logic in our new `processComponents()` ECS master function  handles things for us: It carefully selects components that are applicable to the two different kinds of processing represented by `updateTransform` vs. `updateTurret` respectively. It will never ask a tank's `transform` to fire a bullet, nor will it ask a `turret` to move along a straight line (independently). Instead, it processes according to exactly what kind of entity we have in hand. In future, we will generalise this approach even further.
 
 ### Running Rendering logic over complex components
 
-Finally, we're going to need to update how we render things. All we really do here is set up a nested `if` block to catch whether this is a tank or a bullet. If it's a tank, the logic is largely the same as in [[part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md)](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md). If it's a bullet, there is a small new block of logic to draw it differently from how we draw tanks, of course.
+Finally, we're need to update how we render (draw) things. All we really do have to do here is set up a nested `if` block to catch whether we are drawing a tank or a bullet. If it's a tank, the logic is largely the same as in [[part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md)](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md). If it's a bullet, there is a small new block of logic to draw it differently from how we draw tanks (of course).
 
 ```
 function renderEntities()
@@ -548,13 +548,15 @@ The HTML5 `canvas`'s `context` object is a stateful object which remembers what 
 
 Concrete explanation: before drawing each tank (any of it, body or turret) we save the current context (which is the default context lacking any specific transformations, i.e. the represented by an identity matrix) and then immediately `translate()` to the tank's position. We draw the tank's body, then we save _this_ context (i.e. where we are translated to the tank's position _only_) and then apply another transform by `rotate()`ing as per the turret's current rotation. We then draw the turret (which appears rotated), and when finished, we do `context.restore()` which pops the turret's rotation off the stack, and restores us back to the last saved 2D transformation state (which was where we had `translate()`d to the tank's position, _only_). We could now, if we chose, draw other parts of the tank's _body_ without them being rotated like the turret was. Finally, after a whole tank is drawn, we `restore()` to the default context  state that has _no_ transformations, and move onto the next tank,  `translate()` to it's specific position, and so on.
 
-### How it looks
+### Result
 
-You should now be able to 
+With all the code in place, you should now be able to hit the space bar repeatedly and see tanks driving down the screen. This time, their turrets rotate (at different rates as per our use of `Math.random()` and our ranges), and after a while, you will also begin to see them firing bullets from their turrets.
+
+For now, the bullets don't do anything, but what is worth noticing is that no bullets appear onscren _until) they are fired by the tanks. This is due to the `isActive`-based selectiveness of our drawing function, as it individually processes each entity.
 
 ## Conclusion
 
-This has been our first look at how an ECS can do selective processing on components, in either simluation (game) logic and in rendering logic. Hopefully you begin to see how enity composition can do the same or more, and indeed more easily (without deep inheritance hierarchies), than restrictive and fragile OOP approaches that some programmers use to do entity management.
+This has been our first look at how an ECS can do selective processing on complex components, in both game / simulation logic as well as in rendering logic. Hopefully you begin to see how much entity _composition_ vs. the enormously more restrictive and fragile OOP approaches that some programmers use to do entity management.
 
 In future parts, we will look at how we can do this even more efficiently, by breaking the global entities list we're using now (of all indices into the various components arrays, regardless of entity type, be it tank or bullet) down into smaller sub-lists, suitable for different kinds of processing.
 
