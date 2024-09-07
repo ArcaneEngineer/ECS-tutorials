@@ -556,6 +556,8 @@ With all the code in place, you should now be able to hit the space bar repeated
 
 For now, the bullets don't do anything, but what is worth noticing is that no bullets appear onscreen _until_ they are fired by the tanks. This is due to the `isActive`-based selectiveness of our drawing function.
 
+The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials).
+
 ## Conclusion
 
 This has been our first look at how an ECS can do selective processing on complex components, in both game / simulation logic as well as in rendering logic. Hopefully you begin to see how much entity _composition_ can do, vs. the enormously more restrictive and fragile OOP approaches that some programmers use to do entity management.
