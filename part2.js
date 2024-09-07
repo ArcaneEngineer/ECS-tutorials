@@ -4,20 +4,21 @@ const canvas = document.getElementsByTagName('canvas')[0];
 const context = canvas.getContext('2d');
 
 const TANKS_COUNT = 4;
-const BULLETS_COUNT = TANKS_COUNT; //1 bullet per tank
+const BULLETS_COUNT = TANKS_COUNT; //one bullet per tank
 
-const ENTITIES_COUNT = TANKS_COUNT + BULLETS_COUNT; // How many tanks we have
-//we will treat the first indices as the tanks, and the last indices as their bullets.
+const ENTITIES_COUNT = TANKS_COUNT + BULLETS_COUNT;
+//treat the first indices as the tanks, and the last indices as their bullets, in the same order.
 
 const GAP_BETWEEN_TANKS = canvas.width / TANKS_COUNT;
+
 const BULLET_RADIUS = 3;
 
 const HULL_HEALTH_MIN = 0;
 const HULL_HEALTH_MAX = 10;
 const TURRET_ANGLE_MIN = 0;
 const TURRET_ANGLE_MAX = 2 * Math.PI;
-const TURRET_RELOADTIME_MIN = 20;
-const TURRET_RELOADTIME_MAX = 40;
+const TURRET_RELOADTIME_MIN = 10;
+const TURRET_RELOADTIME_MAX = 30;
 const TURRET_GUNPOWER_MIN = 7;
 const TURRET_GUNPOWER_MAX = 20;
 const TRACK_SPEED_MIN = 1;

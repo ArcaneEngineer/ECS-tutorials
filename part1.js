@@ -4,9 +4,9 @@ const canvas = document.getElementsByTagName('canvas')[0];
 const context = canvas.getContext('2d');
 
 const ENTITIES_COUNT = 12; // How many tanks we have
-const SPEED_MAX = 5; // Tanks' tracks' max speed
 
 const GAP_BETWEEN_TANKS = canvas.width / ENTITIES_COUNT;
+const SPEED_MAX = 5; // Tanks' tracks' max speed
 
 //--- Set up Entities as groups of Components ---//
 

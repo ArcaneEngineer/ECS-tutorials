@@ -4,9 +4,9 @@ We did so because OOP inheritance is the most frequent and major stumbling block
 
 ## Technical overview
 
-In part 1, we used only simple data: a single value for each component, for example the speed of each track contributed to the position of the whole tank (well actually, the hull).
+In [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md), we used only simple data: a single value for each component, for example the speed of each track contributed to the position of the whole tank (well actually, the hull).
 
-In this part, we will elaborate our ECS further by adding the following aspects to the code.
+In part 2, we will elaborate our ECS further by adding the following aspects to the code.
 
 1. Complex components using `object` instances.
 2. Treating components as _active_ or _inactive_ (in the last part, they were _always active_).
@@ -20,11 +20,9 @@ Our code in this part will grow to over 2.5x the original size (120 -> 300+ line
 
 ### How we'll beef up Component data
 
-Some pre-explanation is required.
+Do you recall from [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md), that each component was no more than a single number in the arary of that component type? e.g. in the `hulls` array, at a given index (i.e. for one entity's hull), we had a single value representing the tank's `y` position, and e.g. each `track`'s single value represented its turning speed.
 
-Do you recall from part 1, that each component was no more than a single number in the arary of that component type? e.g. in the `hulls` array, at a given index (i.e. for one entity's hull), we had a single value representing the tank's `y` position, and e.g. each `track`'s single value represented its turning speed.
-
-Well, we'll now need to evolve our ECS: we'll make each component be an `object`, so that it can contain multiple values, allowing for complex components.
+Well, we now need to evolve our ECS: we'll make each component be an `object`, so that it can contain multiple values, allowing for complex components.
 
 Have you noticed that our tank has two tracks, and that they are identical in terms of data? This means they are two `objects` of the same `type` (roughly, a `class`), that is, two instances of something created from the same blueprint.
 
@@ -79,7 +77,7 @@ Why use `object` literals + `structuredClone()` rather than `class` + `new Hull(
 1. **Because I do not want you getting confused by OOP inheritance, and without `class`es, there is no inheritance.** Inheritance is the single main stumbling block of ECS newbies.
 2. In C, where ECS had its roots originally, _inheritance doesn't exist_. I want you to learn the C way, so that you can implement an ECS in any language, regardless of whether or not it has OOP. OOP is _not needed_ for ECS, and indeed it is a good exercise for any programmer to learn to write code that is non-OOP.
 
-With `object` literals `{...}` as our [POD](https://en.wikipedia.org/wiki/Passive_data_structure)s, our components from part 1 would look so:
+With `object` literals `{...}` as our [POD](https://en.wikipedia.org/wiki/Passive_data_structure)s, our components from [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md) would look so:
 
 ```
 let hull = { y: 0 };
@@ -93,7 +91,7 @@ But we can now add more than one field (data member) to each object literal, mea
 ```
 let hull =
 {
-	y: 0, //as from part 1
+	y: 0, //as from [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md)
 
 	//plus our new values:
 	health: 0, 
@@ -119,20 +117,20 @@ Naturally, there is an impact: this means the lines of code where we updated our
 
 ...and in other places in the code, like at component initialisation. You will see this new structure throughout the new code.
 
-## Writing the code
+## Coding up some ECS enhancements
 
 ### Renaming things
 
 If you want to work along with me, you can start by copying `part1`, both the `.js` and `.html` files, and renaming them to `part2`, respectively.
 
-Or, assuming you have downloaded the code from github (`git pull` again if not up to date with part 2), you can diff `part1.js` against `part2.js` so that you can see exactly what has changed.
+Or (and), assuming you have downloaded the code from github (`git pull` again if not up to date with part 2), you can [diff](https://www.google.com/search?q=to+diff+definition) `part1.js` against `part2.js` so that you can see exactly what has changed.
 
-Let's get started going through then necessary changes from `part1.js`. First I want to change two function names:
+Let's get started going through the necessary changes from `part1.js`. First, some renames, global find and replace:
 
-Change `oneTankTakesItsTurn()` to `updateTurret()` and
-change `allTanksTakeTheirTurns()` to `processComponents()`, and
-change `renderAllTanks()` to `renderEntities()`, and
-change `hull[s]` to `transform[s]`.
+- `oneTankTakesItsTurn()` to `updateTurret()` and
+- `allTanksTakeTheirTurns()` to `processComponents()`, and
+- `renderAllTanks()` to `renderEntities()`, and
+- `hull[s]` to `transform[s]`.
 
 Also, duplicate the line `const transforms = new Array(ENTITIES_COUNT)`, and change its copy to
 `const motions = new Array(ENTITIES_COUNT);`
@@ -141,7 +139,7 @@ It should be clear by the end of part 2, why these names are changing.
 
 ### Setting up component prototype objects
 
-If you'ved `git diff`ed the `part1.js` against `part2.js`, you'll see that the next bit is where we change our constants section a little:
+If you'ved [diffed](https://www.google.com/search?q=to+diff+definition) `part1.js` against `part2.js`, you'll see that the next bit is where we change our constants section a little:
 
 ```
 //--- Prep essential constants needed for setup ---//
@@ -150,6 +148,8 @@ const canvas = document.getElementsByTagName('canvas')[0];
 const context = canvas.getContext('2d');
 
 const ENTITIES_COUNT = 12; // How many tanks we have
+
+const GAP_BETWEEN_TANKS = canvas.width / ENTITIES_COUNT;
 const SPEED_MAX = 5; // Tanks' tracks' max speed
 ```
 
@@ -162,7 +162,7 @@ const canvas = document.getElementsByTagName('canvas')[0];
 const context = canvas.getContext('2d');
 
 const TANKS_COUNT = 4;
-const BULLETS_COUNT = TANKS_COUNT; //1 bullet per tank
+const BULLETS_COUNT = TANKS_COUNT; //one bullet per tank
 
 const ENTITIES_COUNT = TANKS_COUNT + BULLETS_COUNT; // How many tanks we have
 //we will treat the first indices as the tanks, and the last indices as their bullets.
@@ -173,9 +173,9 @@ const BULLET_RADIUS = 3;
 ```
 
 As we now need one bullet per tank in addition to the tanks themselves, we are doubling the size of the array. We will store all tanks first, then all bullets afterward, in the same order, as per the tank that owns that bullet. e.g. for 4 tanks total,
-tank [0] has a bullet at index 4+0=[4]
-tank [1] has a bullet at index 4+1=[5]
-tank [2] has a bullet at index 4+2=[6]
+- tank [0] has a bullet at index 4+0=[4]
+- tank [1] has a bullet at index 4+1=[5]
+- tank [2] has a bullet at index 4+2=[6]
 etc.
 
 Directly after those lines, we have a bunch of new constants that will be used for (randomly) initialising components per individual tank, each of these pairs (`*MIN`..`*MAX`) forms a numeric _range_:
@@ -187,8 +187,8 @@ const HULL_HEALTH_MAX = 10;
 const TURRET_ANGLE_MIN = 0;
 const TURRET_ANGLE_MAX = 2 * Math.PI;
 
-const TURRET_RELOADTIME_MIN = 20;
-const TURRET_RELOADTIME_MAX = 40;
+const TURRET_RELOADTIME_MIN = 10;
+const TURRET_RELOADTIME_MAX = 30;
 
 const TURRET_GUNPOWER_MIN = 7;
 const TURRET_GUNPOWER_MAX = 20;
@@ -237,7 +237,7 @@ const trackPrototype =
 }
 ```
 
-Because we used arrays of plain JS `Number` in part 1, we didn't need any of this. But now, we need -- and have -- a schema which describes the data in each new component we will use. (Of course, it would be better if these were strictly typed as in C or TypeScript, but this is descriptive enough for now.)
+Because we used arrays of plain JS `Number` in [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md), we didn't need any of this. But now, we need -- and have -- a schema which describes the data in each new component we will use. (Of course, it would be better if these were strictly typed as in C or TypeScript, but this is descriptive enough for now.)
 
 Furthermore, crucial to this lesson is idea that each of these includes an `isActive` member. (If we were using OOP, we could specify this member as required by an `interface` or `trait`; but what we have here will suffice, as long as we remember to include this member on each new component prototype.)
 
@@ -253,7 +253,7 @@ function lerp(min, max, t)
 }
 ```
 
-The `lerp` or "linearly interpolate" function is simple: by taking a range (`min` and `max`) and a value `t` whose value is always between `0.0` and `1.0`, we get back a number that is exactly a fraction of `t` between `min` and `max`.  So if we called `lerp(5, 10, 0.2)`, we would get back a value of `6`, which is 20% (or as a fraction, `0.2`) between 5 and 10. If you look at the arithmetic, it is easy to understand.
+The `lerp` or "linearly interpolate" function is simple: by taking a range (`min` and `max`) and a value `t` whose value is always between `0.0` and `1.0`, we get back a number that is a `t`-th fraction between `min` and `max`.  So if we called `lerp(5, 10, 0.2)`, we would get back a value of `6`, which is 20% (or as a fraction, `0.2`) between 5 and 10. If you look at the arithmetic, it is easy to understand.
 
 As for the initialisation functions, let's add them below `lerp`:
 
@@ -284,9 +284,11 @@ Notice that `parseInt()` is used to round down to an integer value where desired
 
 On the other hand, you will notice that one member, `turret.reloadCountdown`, is actually set from a pre-initialised value on the same component, `turret`. As we go through this series, interactions between component members (or _fields_) will grow more complex.
 
+Lastly, notice that not ever component type has an initialisation function. From the perspective of our ECS, these are entirely optional, and depend on what -- if anything -- you need to do to your components at startup.
+
 ### Components Initialisation: Overhauling the exiting Loop
 
-We're going to gut our part 1 initialisation loop, which was tiny:
+We're going to gut our [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md) initialisation loop, which was tiny:
 
 ```
 // Populate arrays for components of all tanks.
@@ -334,15 +336,17 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 }
 ```
 
+Right, _that's_ interesting.
+
 The first part, outside of the if block, sets up every component in every arrays, thereby ensuring all are usable, _even if (at runtime) they are never used_. This is central to the way ECS operates. Note, in C, we would not need these -- zeroed structs automatically exist on array allocation. In JS however, we must define the object structure of each element of the entity-component table, or we will be referencing into `undefined` objects, which will cause the program to error when it is run.
 
-You will notice not only the new way of setting up each component using `structuredClone(prototype)`, but also how we either set `isActive` to `true` explicitly on each component where that is required. Notice how:
+You will notice not only the new way of setting up each component using `structuredClone(prototype)`, but also how we set `isActive` to `true` explicitly on each component where that is required. Notice how:
 
 1. if an entity will be a tank, it has its `transform` (position), `motion`, `turret`, and each `track` set active.
 
 2. if an entity will be a bullet, which makes up the other half of our component arrays (from index `[4]` to `[7]` inclusive), then nothing is set active initially.
 
-Why is this? Well, because bullets aren't active to start with. We neither want to process them nor see them until a bullet is fired by one or more tanks. They basically don't exist in our simulation until then. For a good example of this, see how bullet rendering is processed, further on in `renderEntities()`.
+Why is this? Well, because bullets aren't active to start with. We neither want to process them nor see them until a bullet is fired by one or more tanks. They basically don't exist in our simulation until then. For a good example of this, see how bullet rendering is processed, further down, in `renderEntities()`.
 
 ### Running Game logic over complex components
 
@@ -391,13 +395,13 @@ function processComponents()
 }
 ```
 
-It is the same old loop over all entities (component indices), but the logic inside the loop has changed completely. The magic here is that `updateTransform()` is no longer entity-type specific. _It is applicable to any kind of entity._
+We see the same old loop over all entities (component indices), but the logic _inside_ the loop has changed completely. The magic here is that `updateTransform()` is no longer entity-type specific. _It is applicable to any kind of entity_ (since all entities need at least a transform, in a typical ECS).
 
-Looking at the first `if` block, we check the `isActive` status of various component arrays `transforms`, `motions` to see whether we can, in fact, move an active entity.
+Looking at the first `if` block, we check the `isActive` status of various component arrays, `transforms` and `motions`, to see whether we can, in fact, move our current entity `e`.
 
-In the second `if` block, we check whether the current entity `e` has an active `turret`, and if it does, we also call that `turret` to update, potentially firing a bullet.
+In the second `if` block, we check whether the current entity `e` has an active `turret`, and if it does, we call that `turret` to update, potentially firing a bullet, or at least reducing the firing countdown until we can shoot again.
 
-Now let's look at these two new functions called inside that loop. `updateTurret` was formerly `oneTankTakesItsTurn` in part 1, but we've taken out the tank movement logic and moved it into a separate funtion, `updateTransform`:
+Now let's look at these two new functions called inside that loop. `updateTurret` was formerly `oneTankTakesItsTurn` in [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md), but we've taken out the tank movement logic and moved it into a separate funtion, `updateTransform`:
 
 ```
 function updateTurret(e)
@@ -458,16 +462,15 @@ function updateTransform(e)
 }
 ```
 
-You can see that each of these methods has a very specific scope and purpose -- they each relate to different aspects of the tank's physical form and its operation.
+You can see that each of these methods has a very specific scope and purpose -- they each relate to different aspects of the tank's form and its operation. That is, to its component _composition_.
 
-So, bullets eh? And how will we process them? The second function shows the entirety of what happens for bullets. `updateTransform()` applies a basic equation of motion (velocity without acceleration) to each entity's position (`transform`), each tick of the simulation. Crucially, this is another example of _inter-component, intra-entity_ interaction. In part 3, we will look also at _inter-entity_ interactions. More interestingly, this  `updateTransform()`  is used _for both tanks and bullets_, with no knowledge of the other differences between them. This is one strength of [composition-based]() systems like ECS.
+So, bullets eh? How will we process them? The second function  `updateTransform()` shows the entirety of what happens for bullets. It applies a basic equation of motion (velocity without acceleration) to each entity's position (`transform`), each tick of the simulation. This is another example of _inter-component, intra-entity_ interaction. In part 3, we will look also at _inter-entity_ interactions. More interestingly, this  `updateTransform()`  is used _for both tanks and bullets_, with no knowledge of the other differences between them. It could be used for any other type of moving entity we can dream up, too. This is a strength of [composition-based]() systems like ECS. 
 
-
-Well as it happens, the conditional logic in our new `processComponents()` ECS master function neatly handles that for us. It carefully selects components that are applicable to the two different kinds of processing represented by `updateTransform` vs. `updateTurret` respectively. We will not ask a tank's `transform` to fire a bullet, and we will not ask a `turret` to move along a straight line.
+As it happens, the conditional logic in our new `processComponents()` ECS master function neatly handles things for us: It carefully selects components that are applicable to the two different kinds of processing represented by `updateTransform` vs. `updateTurret` respectively. We will not ask a tank's `transform` to fire a bullet, nor will we ask a `turret` to move along a straight line. Instead, we process according to what kind of entity we have in hand.
 
 ### Running Rendering logic over complex components
 
-Finally, we're going to need to update how we render things. All we really do here is set up a nested `if` block to catch whether this is a tank or a bullet. If it's a tank, the logic is largely the same as in part 1. If it's a bullet, there is a small new block of logic to draw it differently from how we draw tanks, of course.
+Finally, we're going to need to update how we render things. All we really do here is set up a nested `if` block to catch whether this is a tank or a bullet. If it's a tank, the logic is largely the same as in [[part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md)](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md). If it's a bullet, there is a small new block of logic to draw it differently from how we draw tanks, of course.
 
 ```
 function renderEntities()
@@ -533,14 +536,19 @@ function renderEntities()
 }
 
 ```
+### Drawing transforms explanation
 
-Some explanation of the drawing function is due, as this was promised (in a code comment) in part 1.
+Some explanation of the drawing function is due, as this was promised (in a code comment) in [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md).
 
 The HTML5 `canvas`'s `context` object is a stateful object which remembers what kind of spatial transforms we have applied to it. These transforms are stacked up so that we can apply one _or more_ transforms (positioning, rotational) before drawing a given element (shape or text or image), after which we can pop the topmost transform off the stack wof transformations.
 
 Concrete explanation: before drawing each tank (any of it, body or turret) we save the current context (which is the default context lacking any specific transformations, i.e. the represented by an identity matrix) and then immediately `translate()` to the tank's position. We draw the tank's body, then we save _this_ context (i.e. where we are translated to the tank's position _only_) and then apply another transform by `rotate()`ing as per the turret's current rotation. We then draw the turret (which appears rotated), and when finished, we do `context.restore()` which pops the turret's rotation off the stack, and restores us back to the last saved 2D transformation state (which was where we had `translate()`d to the tank's position, _only_). We could now, if we chose, draw other parts of the tank's _body_ without them being rotated like the turret was. Finally, after a whole tank is drawn, we `restore()` to the default context  state that has _no_ transformations, and move onto the next tank,  `translate()` to it's specific position, and so on.
 
-### Conclusion
+### How it looks
+
+You should now be able to 
+
+## Conclusion
 
 This has been our first look at how an ECS can do selective processing on components, in either simluation (game) logic and in rendering logic. Hopefully you begin to see how enity composition can do the same or more, and indeed more easily (without deep inheritance hierarchies), than restrictive and fragile OOP approaches that some programmers use to do entity management.
 
