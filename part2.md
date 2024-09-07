@@ -1,6 +1,6 @@
 # ENTITY COMPONENT SYSTEMS: Part 2
 
-[Previously](https://www.codementor.io/@nick_gamesdeveloper/entity-component-systems-1-2jkby37cqb), we set up a trivial example game called Tiny Tanks, that demonstrates Entity-Component System (ECS) basics, while using only C-like Javascript, i.e. we wrote the code without involving _OOP inheritance hierarchies_ of any kind.
+[Previously](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md), we set up a trivial example game called Tiny Tanks, that demonstrates Entity-Component System (ECS) basics, while using only C-like Javascript, i.e. we wrote the code without involving _OOP inheritance hierarchies_ of any kind.
 
 We did so because OOP inheritance is the primary stumbling block for many newcomers to ECS. We will continue in this vein.
 
