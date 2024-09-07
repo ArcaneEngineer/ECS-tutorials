@@ -22,11 +22,11 @@ Our code will grow to over 2.5x the original size (120 -> 300+ lines of code) as
 
 ### How we'll beef up Component data
 
-Do you recall from [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md), that each component was no more than a single number in the arary of that component type? e.g. in the `hulls` array, at a given index, we had a single value representing the tank's `y` position, and e.g. each `track`'s single value represented its turning speed.
+Do you recall from [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md), that each component was no more than a single number in the array of that component type? e.g. in the `hulls` array, at a given index, we had a single value representing the tank's `y` position, and e.g. each `track`'s single value represented its turning speed.
 
 Well, we now need to evolve our ECS: we'll make each component be an `object`, so that it can contain multiple values, allowing for complex components.
 
-Have you noticed that our tank has two tracks, and that they are identical in terms of data? This means they are two `objects` of the same `type` (roughly, a `class`), that is, two instances of something created from the same blueprint.
+Have you noticed that our tank has two tracks, and that they are identical in terms of data? This means they are two `objects` of the same `type` (roughly, a `class`), two instances of something created from the same blueprint.
 
 In C, a tank's `Hull` could be implemented using a `struct`, like so:
 
@@ -76,7 +76,7 @@ let myHull =  structuredClone(hullPrototype);
 
 Why use `object` literals + `structuredClone()` rather than `class` + `new Hull()`?
 
-1. **Because I do not want you getting confused by OOP inheritance, and without `class`es, there is no inheritance.** Inheritance is the single main stumbling block of ECS newbies.
+1. **Because I do not want you getting confused by OOP inheritance, and without `class`es, there is no inheritance.** Inheritance is the main stumbling block for ECS newbies.
 2. In C, where ECS had its roots originally, _inheritance doesn't exist_. I want you to learn the C way, so that you can implement an ECS in any language, regardless of whether or not it has OOP. OOP is _not needed_ for ECS, and indeed it is a good exercise for any programmer to learn to write code that is non-OOP.
 
 With `object` literals `{...}` as our [POD](https://en.wikipedia.org/wiki/Passive_data_structure)s, our components from [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md) would look so:
@@ -102,7 +102,7 @@ let hull =
 
 ```
 
-Naturally, there is an impact: this means the lines of code where we updated our tank's position from its tracks' speed would go from this:
+Naturally, there is an impact, as the lines of code where we updated our tank's position from its tracks' speed would go from this:
 
 ```
 	let speed = trackLefts[e] + trackRights[e];
@@ -141,7 +141,7 @@ It should be clear by the end of this part of the series, why these names are ch
 
 ### Setting up component prototype objects
 
-If you'ved [diffed](https://www.google.com/search?q=to+diff+definition) `part1.js` against `part2.js`, you'll see that the next bit is where we change our constants section a little:
+If you'ved [diffed](https://www.google.com/search?q=to+diff+definition) `part1.js` against `part2.js`, you'll see that we change our constants section a little:
 
 ```
 //--- Prep essential constants needed for setup ---//
@@ -288,7 +288,7 @@ On the other hand, you will notice that one member, `turret.reloadCountdown`, is
 
 Lastly, notice that not every component type _has_ an initialisation function. From the perspective of our ECS, these are entirely optional, and depend on what -- if anything -- you need to do to your components at startup.
 
-### Components Initialisation: Overhauling the exiting Loop
+### Components Initialisation: Overhauling the existing Loop
 
 We're going to gut our [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md) initialisation loop, which was tiny:
 
@@ -340,9 +340,9 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 
 Right, _that's_ interesting.
 
-The first part, outside of the if block, sets up each component in every component type array, thereby ensuring all are usable, _even if (at runtime) they are never used_. This is central to the way ECS operates. Note that in C, we would never need these `structuredClone` lines -- zeroed structs automatically exist once an array is allocated on the heap or stack. In JS however, we carefully define the object structure of each element of the 2D entity-component table (the rows of which are the component arrays themselves, and the columns of which are the individual entity indices), or ekse we will be referencing into `undefined` objects, which causes the program to error when it is run. 
+The first part, outside of the `if` block, sets up each component in every component type array, thereby ensuring all are usable, _even if (at runtime) they are never used_. This is central to the way ECS operates. Note that in C, we would never need these `structuredClone` lines -- zeroed structs automatically exist once an array is allocated on the heap or stack. In JS however, we carefully define the object structure of each element of the 2D entity-component table (the rows of which are the component arrays themselves, and the columns of which are the individual entity indices), or else we will be referencing into `undefined` objects, which causes the program to error when it is run. 
 
-In either case, C or JS, we'd still need functions to initialise our objects to the desired starting values, however.
+In either case, C or JS, we'd still need functions to initialise our objects to the desired starting values.
 
 You will notice not only the new way of setting up each component using `structuredClone(prototype)`, but also how we set `isActive` to `true` explicitly on each component where that is required:
 
@@ -476,7 +476,7 @@ The conditional logic in our new `processComponents()` ECS master function  hand
 
 ### Running Rendering logic over complex components
 
-Finally, we need to update how we render (draw) things. All we really do have to do here is set up a nested `if` block to catch whether we are drawing a tank or a bullet. If it's a tank, the logic is largely the same as in [[part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md)](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md). If it's a bullet, there is a small new block of logic to draw it differently from how we draw tanks (of course).
+Finally, we need to update how we render (draw) things. All we really do have to do here is set up a nested `if` block to catch whether we are drawing a tank or a bullet. If it's a tank, the logic is largely the same as in [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md). If it's a bullet, there is a small new block of logic to draw it differently from how we draw tanks (of course).
 
 ```
 function renderEntities()
@@ -544,17 +544,19 @@ function renderEntities()
 ```
 ### Drawing transforms explanation
 
-Some explanation of the drawing function is due, as this was promised (in a code comment) in [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md).
+An explanation of the drawing function is due, this was promised (in a code comment) in [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md).
 
 The HTML5 `canvas`'s `context` object is a stateful object which remembers what kind of spatial transforms we have applied to it. These transforms are stacked up so that we can apply one _or more_ transforms (positioning, rotational) before drawing a given element (shape or text or image), after which we can pop the topmost transform off the stack wof transformations.
 
-Concrete explanation: before drawing each tank (any of it, body or turret) we save the current context (which is the default context lacking any specific transformations, i.e. the represented by an identity matrix) and then immediately `translate()` to the tank's position. We draw the tank's body, then we save _this_ context (i.e. where we are translated to the tank's position _only_) and then apply another transform by `rotate()`ing as per the turret's current rotation. We then draw the turret (which appears rotated), and when finished, we do `context.restore()` which pops the turret's rotation off the stack, and restores us back to the last saved 2D transformation state (which was where we had `translate()`d to the tank's position, _only_). We could now, if we chose, draw other parts of the tank's _body_ without them being rotated like the turret was. Finally, after a whole tank is drawn, we `restore()` to the default context  state that has _no_ transformations, and move onto the next tank,  `translate()` to it's specific position, and so on.
+Concrete explanation: before drawing each tank (any of it, body or turret), we save the current context (which is the default context lacking any specific transformations, i.e. the represented by an identity matrix) and then immediately `translate()` to the tank's position. We draw the tank's body, then we save _this_ context (i.e. where we are translated to the tank's position _only_) and then apply another transform by `rotate()`ing as per the turret's current rotation. We then draw the turret (which appears rotated), and when finished, we do `context.restore()` which pops the turret's rotation off the stack, and restores us back to the last saved 2D transformation state (which was where we had `translate()`d to the tank's position, _only_). We could now, if we chose, draw other parts of the tank's _body_ without them being rotated like the turret was. Finally, after a whole tank is drawn, we `restore()` to the default context  state that has _no_ transformations, and move onto the next tank,  `translate()` to it's specific position, and so on.
 
 ### Result
 
-With all the code in place, you should now be able to hit the space bar repeatedly and see tanks driving down the screen. This time, their turrets rotate (at different rates as per our use of `Math.random()` and our ranges), and after a while, you will also begin to see them firing bullets from their turrets.
+With all the code in place, you'll be able to hit the space bar repeatedly and see tanks driving down the screen. This time, their turrets rotate (at different rates as per our use of `Math.random()` and our ranges), and after a while, you will also begin to see them firing bullets from their turrets.
 
-For now, the bullets don't do anything, but what is worth noticing is that no bullets appear onscreen _until_ they are fired by the tanks. This is due to the `isActive`-based selectiveness of our drawing function.
+![part2_tiny_tanks.png](https://ucarecdn.com/c204fb62-5e6d-43b5-afc4-87980adc47f1/)
+
+For now, bullets don't do anything, but it is worth noticing that no bullets appear onscreen _until_ they are fired by the tanks. This is due to the `isActive`-based selectiveness of our drawing function.
 
 The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials).
 
