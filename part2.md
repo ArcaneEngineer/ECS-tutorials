@@ -338,7 +338,9 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 
 Right, _that's_ interesting.
 
-The first part, outside of the if block, sets up every component in every arrays, thereby ensuring all are usable, _even if (at runtime) they are never used_. This is central to the way ECS operates. Note that in C, we would never need these -- zeroed structs automatically exist once an array is allocated. In JS however, we must define the object structure of each element of the entity-component table, or we will be referencing into `undefined` objects, which will cause the program to error when it is run. In either case, C or JS, we'd still need functions to initialise our objects to the desired starting values, however.
+The first part, outside of the if block, sets up each component in every component type array, thereby ensuring all are usable, _even if (at runtime) they are never used_. This is central to the way ECS operates. Note that in C, we would never need these `structuredClone` lines -- zeroed structs automatically exist once an array is allocated on the heap or stack. In JS however, we carefully define the object structure of each element of the 2D entity-component table (the rows of which are the component arrays themselves, and the columns of which are the individual entity indices), or ekse we will be referencing into `undefined` objects, which causes the program to error when it is run. 
+
+In either case, C or JS, we'd still need functions to initialise our objects to the desired starting values, however.
 
 You will notice not only the new way of setting up each component using `structuredClone(prototype)`, but also how we set `isActive` to `true` explicitly on each component where that is required:
 
