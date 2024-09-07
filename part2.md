@@ -476,7 +476,7 @@ The conditional logic in our new `processComponents()` ECS master function  hand
 
 ### Running Rendering logic over complex components
 
-Finally, we're need to update how we render (draw) things. All we really do have to do here is set up a nested `if` block to catch whether we are drawing a tank or a bullet. If it's a tank, the logic is largely the same as in [[part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md)](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md). If it's a bullet, there is a small new block of logic to draw it differently from how we draw tanks (of course).
+Finally, we need to update how we render (draw) things. All we really do have to do here is set up a nested `if` block to catch whether we are drawing a tank or a bullet. If it's a tank, the logic is largely the same as in [[part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md)](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md). If it's a bullet, there is a small new block of logic to draw it differently from how we draw tanks (of course).
 
 ```
 function renderEntities()
