@@ -135,7 +135,7 @@ Let's get started going through the necessary changes from `part1.js`. First, so
 Also, duplicate the line `const transforms = new Array(ENTITIES_COUNT)`, and change its copy to
 `const motions = new Array(ENTITIES_COUNT);`
 
-It should be clear by the end of part 2, why these names are changing.
+It should be clear by the end of this part of the series, why these names are changing.
 
 ### Setting up component prototype objects
 
@@ -239,11 +239,11 @@ const trackPrototype =
 
 Because we used arrays of plain JS `Number` in [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md), we didn't need any of this. But now, we need -- and have -- a schema which describes the data in each new component we will use. (Of course, it would be better if these were strictly typed as in C or TypeScript, but this is descriptive enough for now.)
 
-Furthermore, crucial to this lesson is idea that each of these includes an `isActive` member. (If we were using OOP, we could specify this member as required by an `interface` or `trait`; but what we have here will suffice, as long as we remember to include this member on each new component prototype.)
+Furthermore, crucial to this lesson is idea that each of these includes an `isActive` member. (If we were using OOP, we could specify this member as required by an `interface` or `trait`; but what we have here will suffice, as long as we remember to include this member on each new component prototype that we create in the future.)
 
 ### Component initialisation functions
 
-An important function will be shared by various component initialisations:
+Firstly, an important function will be shared by the various component initialiser functions:
 
 ```
 function lerp(min, max, t)
@@ -255,7 +255,7 @@ function lerp(min, max, t)
 
 The `lerp` or "linearly interpolate" function is simple: by taking a range (`min` and `max`) and a value `t` whose value is always between `0.0` and `1.0`, we get back a number that is a `t`-th fraction between `min` and `max`.  So if we called `lerp(5, 10, 0.2)`, we would get back a value of `6`, which is 20% (or as a fraction, `0.2`) between 5 and 10. If you look at the arithmetic, it is easy to understand.
 
-As for the initialisation functions, let's add them below `lerp`:
+The initialisation functions that use `lerp`, are as follows:
 
 ```
 function initTransformTank(transform, e)
@@ -282,9 +282,9 @@ As you can see, some of these `init*` functions take the `MIN` and `MAX` ranges 
 
 Notice that `parseInt()` is used to round down to an integer value where desired, rather than using `Math.random()`'s default floating point output. (Using integers also makes numbers more readable in the browser console using `console.log()`, which is useful when programming in JS).
 
-On the other hand, you will notice that one member, `turret.reloadCountdown`, is actually set from a pre-initialised value on the same component, `turret`. As we go through this series, interactions between component members (or _fields_) will grow more complex.
+On the other hand, you will notice that one member, `turret.reloadCountdown`, is actually set from a pre-initialised value on the same component, `turret`.
 
-Lastly, notice that not ever component type has an initialisation function. From the perspective of our ECS, these are entirely optional, and depend on what -- if anything -- you need to do to your components at startup.
+Lastly, notice that not every component type _has_ an initialisation function. From the perspective of our ECS, these are entirely optional, and depend on what -- if anything -- you need to do to your components at startup.
 
 ### Components Initialisation: Overhauling the exiting Loop
 
@@ -302,7 +302,7 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 }
 ```
 
-In favour of this:
+And replace it with this:
 
 ```
 // Populate arrays for components of all tanks.
@@ -338,9 +338,9 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 
 Right, _that's_ interesting.
 
-The first part, outside of the if block, sets up every component in every arrays, thereby ensuring all are usable, _even if (at runtime) they are never used_. This is central to the way ECS operates. Note, in C, we would not need these -- zeroed structs automatically exist on array allocation. In JS however, we must define the object structure of each element of the entity-component table, or we will be referencing into `undefined` objects, which will cause the program to error when it is run.
+The first part, outside of the if block, sets up every component in every arrays, thereby ensuring all are usable, _even if (at runtime) they are never used_. This is central to the way ECS operates. Note that in C, we would never need these -- zeroed structs automatically exist once an array is allocated. In JS however, we must define the object structure of each element of the entity-component table, or we will be referencing into `undefined` objects, which will cause the program to error when it is run. In either case, C or JS, we'd still need functions to initialise our objects to the desired starting values, however.
 
-You will notice not only the new way of setting up each component using `structuredClone(prototype)`, but also how we set `isActive` to `true` explicitly on each component where that is required. Notice how:
+You will notice not only the new way of setting up each component using `structuredClone(prototype)`, but also how we set `isActive` to `true` explicitly on each component where that is required:
 
 1. if an entity will be a tank, it has its `transform` (position), `motion`, `turret`, and each `track` set active.
 
@@ -395,7 +395,7 @@ function processComponents()
 }
 ```
 
-We see the same old loop over all entities (component indices), but the logic _inside_ the loop has changed completely. The magic here is that `updateTransform()` is no longer entity-type specific. _It is applicable to any kind of entity_ (since all entities need at least a transform, in a typical ECS).
+We see the same old loop over all entities (component indices), but the logic _inside_ the loop has changed completely. The magic here is that `updateTransform()` is no longer entity-type specific. _It is applicable to any kind of entity_ (all entities need at least a `transform` in a typical ECS).
 
 Looking at the first `if` block, we check the `isActive` status of various component arrays, `transforms` and `motions`, to see whether we can, in fact, move our current entity `e`.
 
@@ -464,9 +464,11 @@ function updateTransform(e)
 
 You can see that each of these methods has a very specific scope and purpose -- they each relate to different aspects of the tank's form and its operation. That is, to its component _composition_.
 
-So, bullets eh? How will we process them? The second function  `updateTransform()` shows the entirety of what happens for bullets. It applies a basic equation of motion (velocity without acceleration) to each entity's position (`transform`), each tick of the simulation. This is another example of _inter-component, intra-entity_ interaction. In part 3, we will look also at _inter-entity_ interactions. More interestingly, this  `updateTransform()`  is used _for both tanks and bullets_, with no knowledge of the other differences between them. It could be used for any other type of moving entity we can dream up, too. This is a strength of [composition-based]() systems like ECS. 
+So, bullets eh? How will we process them? The second function  `updateTransform()` shows the entirety of what happens for bullets. It applies a basic equation of motion (velocity without acceleration) to each entity's position (`transform`), each tick of the simulation. This is another example of _inter-component, intra-entity_ interaction. In part 3, we will look also at _inter-entity_ interactions.
 
-As it happens, the conditional logic in our new `processComponents()` ECS master function neatly handles things for us: It carefully selects components that are applicable to the two different kinds of processing represented by `updateTransform` vs. `updateTurret` respectively. We will not ask a tank's `transform` to fire a bullet, nor will we ask a `turret` to move along a straight line. Instead, we process according to what kind of entity we have in hand.
+Most interestingly, this  `updateTransform()`  is used _for both tanks and bullets_, with no knowledge of the other differences between them. It could be used for any other type of moving entity we can dream up, too. This is a strength of [composition-based]() systems like ECS. 
+
+As it happens, the conditional logic in our new `processComponents()` ECS master function neatly handles things for us: It carefully selects components that are applicable to the two different kinds of processing represented by `updateTransform` vs. `updateTurret` respectively. We will not ask a tank's `transform` to fire a bullet, nor will we ask a `turret` to move along a straight line. Instead, we process according to what kind of entity we have in hand. In future, we will generalise this code even further.
 
 ### Running Rendering logic over complex components
 
