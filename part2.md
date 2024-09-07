@@ -239,7 +239,7 @@ const trackPrototype =
 
 Because we used arrays of plain JS `Number` in [part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md), we didn't need any of this. But now, we need -- and have -- a schema which describes the data in each new component we will use. (Of course, it would be better if these were strictly typed as in C or TypeScript, but this is descriptive enough for now.)
 
-Furthermore, crucial to this lesson is idea that each of these includes an `isActive` member. (If we were using OOP, we could specify this member as required by an `interface` or `trait`; but what we have here will suffice, as long as we remember to include this member on each new component prototype that we create in the future.)
+It is key to note that each of these component prototypes includes an `isActive` member. (If we were using OOP, we could specify this member as required by an `interface` or `trait`; but what we have here will suffice, as long as we remember to include this member on each new component prototype that we create in the future.)
 
 ### Component initialisation functions
 
@@ -346,9 +346,9 @@ You will notice not only the new way of setting up each component using `structu
 
 1. if an entity will be a tank, it has its `transform` (position), `motion`, `turret`, and each `track` set active.
 
-2. if an entity will be a bullet, which makes up the other half of our component arrays (from index `[4]` to `[7]` inclusive), then nothing is set active initially.
+2. if an entity will be a bullet, then _nothing_ is set active initially.
 
-Why is this? Well, because bullets aren't active to start with. We neither want to process them nor see them until a bullet is fired by one or more tanks. They basically don't exist in our simulation until then. For a good example of this, see how bullet rendering is processed, further down, in `renderEntities()`.
+Why is this? Because bullets aren't active to start with. We neither want to process them nor see them until a bullet is fired by one or more tanks. They basically don't exist in our simulation until then. For a good example of this, see how bullet rendering is processed, further down, in `renderEntities()`.
 
 ### Running Game logic over complex components
 
