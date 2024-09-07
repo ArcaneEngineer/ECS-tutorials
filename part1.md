@@ -81,7 +81,7 @@ Now... How do we process these entities-represented-as-sets-of-components?
 
 //--- Game logic ---//
 
-function oneTankTakesItsTurn(e, hulls, turrets, trackLefts, trackRights)
+function oneTankTakesItsTurn(e)
 {
 	let hullOld = hulls[e];
 	let speed = trackLefts[e] + trackRights[e];
@@ -98,18 +98,12 @@ OK, that processes (moves) a single tank, but how do we process all tank entitie
 
 ```
 //Our simplistic, global "ECS" function.
-function allTanksTakeTheirTurns(hulls, turrets, trackLefts, trackRights) 
+function allTanksTakeTheirTurns() 
 {
     //process each entity in our game
     for (let e = 0; e < ENTITIES_COUNT; e++)
     {
-        oneTankTakesItsTurn(
-            e,
-            hulls,
-            turrets,
-            trackLefts,
-            trackRights,
-        );
+        oneTankTakesItsTurn(e);
     }
 }
 
@@ -120,7 +114,7 @@ This runs a single frame (_turn_) of processing, for all entities we have create
 We run it by setting up all the code above in a `.js` file, and calling that function:
 
 ```
-allTanksTakeTheirTurns(hulls, turrets, trackLefts, trackRights);
+allTanksTakeTheirTurns();
 ```
 
 ...This steps the simulation just once. Let's gives ourselves the ability to step the simulation multiple times, by hitting the spacebar:
@@ -131,7 +125,7 @@ function updateGameLogic()
 {
 	console.log("Processing turn", turn, "...");
 	
-	allTanksTakeTheirTurns(hulls, turrets, trackLefts, trackRights); //call our ECS to process everything.
+	allTanksTakeTheirTurns(); //call our ECS to process everything.
 	
 	turn++;
 }
@@ -157,7 +151,7 @@ const colors = ["red", "green", "blue", "cyan", "magenta", "yellow"];
 const canvas = document.getElementsByTagName('canvas')[0];
 const context = canvas.getContext('2d');
 
-function renderAllTanks(hulls)
+function renderAllTanks()
 {
 	context.fillStyle = "white";
 	context.clearRect(0, 0, canvas.width, canvas.height);
@@ -208,13 +202,13 @@ function updateGameLogic()
 {
 	console.log("Processing turn", turn, "...");
 	
-	allTanksTakeTheirTurns(hulls, turrets, trackLefts, trackRights); //call our ECS to process everything.
-	renderAllTanks(hulls);
+	allTanksTakeTheirTurns(); //call our ECS to process everything.
+	renderAllTanks();
 	
 	turn++;
 }
 
-renderAllTanks(hulls); //pre-draw, for when we load the HTML page.
+renderAllTanks(); //pre-draw, for when we load the HTML page.
 
 document.addEventListener('keyup', event => { if (event.code === 'Space') updateGameLogic(); })
 ```
