@@ -16,9 +16,7 @@ As part of this process, we will also begin to support the idea of _entity arche
 
 An archetype is basically the unique collection of active components which defines an entity.
 
-For example, a tank is something that has a `hull`, `turret`, `trackLeft` and `trackRight`, in addition to the ubiquitous `transform` and `motion` components being active. That collection of active component types is the tanks _archetype_. Anything that shares these active components can also be considered a tank.
-
-For this reason, we will also be further defining a bullet, so that it is clear that a bullet is not just some generic object that has a `transform` (position) and can effect `motion`, but is in fact something discrete from all other objects that contain only a  `transform` and `motion` component (basically, anything you can imagine that has a position and can move).
+For example, a tank is something that has active `hull`, `turret`, `trackLeft` and `trackRight`components, in addition to the ubiquitous `transform` and `motion` components being active. That collection of active component types is the tanks _archetype_. Anything that shares these active components can also be considered to be a tank.
 
 ## Writing the Code
 
@@ -67,7 +65,7 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 
 There are many application specifics here, most of which we'd only care about in the context of Tiny Tanks.
 
-We can however see clear sections in this code, where different types of tasks are being handled. Roughly speaking, the pseudocode I'm seeing from this is:
+We can however see clear sections in this code, where different types of tasks are being handled. Roughly speaking, the pseudocode we can derive from this is:
 
 ```
 for (let e = 0; e < ENTITIES_COUNT; e++)
@@ -81,14 +79,14 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 		set active every such entity
 	
 	}
-	else if this counted as a bullet entity
+	else if this counts as a bullet entity
 	{
 		do nothing
 	}
 }
 ```
 
-We should split this up into two separate phases for clarity. (If this were implemented in C, we would't even need the population section, due to the way arrays-of-`struct` are allocated, zeroed automatically, and accessed.)
+We should split this up into two separate phases for clarity. (If this were implemented in C, we wouldn't even need the population section, due to the way arrays-of-`struct` are allocated, zeroed automatically, and accessed.)
 
 ```
 //array contents definition / population (all)
@@ -116,7 +114,7 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 
 ### Generalising the populate loop
 
-Right. From that pseudocode, let's write the actual population code, which is a _lot_ more concise:
+Right. From that pseudocode, let's write the actual population code, which is way more concise:
 
 ```
 // Populate component data arrays unconditionally for all entities (object instances).
@@ -127,17 +125,19 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 	for (let c = 0; c < componentsByIndex.length; c++)
 	{
 		let component = componentsByIndex[c];
-		component.array[e] = structuredClone(component.proto_);
+		component.array[e] = structuredClone(component.prototype);
 	}
 }
 ```
 
-For each line of code, you should be able to see clear analogues with the original version.
+For each line of code here, you should be able to see clear analogues with the first few lines of code in the original version (`transforms [e] = structuredClone(transformPrototype);` etc.).
 
-We debut a new array, `componentsByIndex`, which contains a `proto_` e.g. `turretPrototype` (I've avoided using the word `prototype`, since Javascript uses this internally), and an `array` e.g. `turrets`. The first (`proto_`) is used to instantiate and assign to the second (`array`).
+We debut a new array, `componentsByIndex`, which contains a `prototype` e.g. `turretPrototype` (I've avoided using the exact word `prototype`, since Javascript uses this internally), and an `array` e.g. `turrets`. The first (`prototype`) is used to instantiate and assign to the second (`array`).
 
 `componentsByIndex` is central to how we will generalise our ECS now and in the future, so pay close attention to its structure (which we'll describe shortly) and its usage in the sections below.
 
+(For Javascript afficionados, I apologise for using the member name `prototype` here. You will know that this can cause confusion with the various with under-the-hood use of `[[Prototype]]`, `__proto__` etc. by Javascript. _However_, since this word accurately describes what we're doing, and is what was used in part 2, as well as the fact that diffing `part [n-1].js` with `part [n].js` is the best way to follow these tutorials, I have decided to keep the name as it is. You could use the term `blueprint` if you prefer, although I see this as more of a `class` than of an `object` prototype. Thanks for understanding.)
+ 
 ### Generalising the initialise loop
 
 The initialisation section from [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md) was quite tank-specific (as opposed to bullet-specific), now it generalises to:
@@ -185,11 +185,11 @@ const componentsByIndex =
 [
 	//in each case, we have type info and the data array.
 	//these could also be stored in 2 separate arrays.
-	{init: initTransform, update: updateTransform, proto_:transformPrototype, array: transforms},
-	{init: funcNull,      update: funcNull,        proto_:motionPrototype,    array: motions},
-	{init: initTurret,    update: updateTurret,    proto_:turretPrototype,    array: turrets},
-	{init: initTrack,     update: funcNull,        proto_:trackPrototype,     array: trackLefts},
-	{init: initTrack,     update: funcNull,        proto_:trackPrototype,     array: trackRights},
+	{init: initTransform, update: updateTransform, prototype:transformPrototype, array: transforms},
+	{init: funcNull,      update: funcNull,        prototype:motionPrototype,    array: motions},
+	{init: initTurret,    update: updateTurret,    prototype:turretPrototype,    array: turrets},
+	{init: initTrack,     update: funcNull,        prototype:trackPrototype,     array: trackLefts},
+	{init: initTrack,     update: funcNull,        prototype:trackPrototype,     array: trackRights},
 ];
 ```
 

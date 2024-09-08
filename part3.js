@@ -146,11 +146,11 @@ const componentsByIndex =
 [
 	//in each case, we have type info and the data array.
 	//these could also be stored in 2 separate arrays.
-	{init: initTransform, update: updateTransform, proto_:transformPrototype, array: transforms},
-	{init: funcNull,      update: funcNull,        proto_:motionPrototype,    array: motions},
-	{init: initTurret,    update: updateTurret,    proto_:turretPrototype,    array: turrets},
-	{init: initTrack,     update: funcNull,        proto_:trackPrototype,     array: trackLefts},
-	{init: initTrack,     update: funcNull,        proto_:trackPrototype,     array: trackRights},
+	{init: initTransform, update: updateTransform, prototype:transformPrototype, array: transforms},
+	{init: funcNull,      update: funcNull,        prototype:motionPrototype,    array: motions},
+	{init: initTurret,    update: updateTurret,    prototype:turretPrototype,    array: turrets},
+	{init: initTrack,     update: funcNull,        prototype:trackPrototype,     array: trackLefts},
+	{init: initTrack,     update: funcNull,        prototype:trackPrototype,     array: trackRights},
 ];
 
 
@@ -202,7 +202,7 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 	for (let c = 0; c < componentsByIndex.length; c++)
 	{
 		let component = componentsByIndex[c];
-		component.array[e] = structuredClone(component.proto_);
+		component.array[e] = structuredClone(component.prototype);
 	}
 }
 
@@ -379,7 +379,7 @@ function updateGameLogic()
 	
 	processComponents(); //call our ECS to process everything.
 	renderEntities();
-	
+	console.log(transformPrototype);
 	turn++;
 }
 
