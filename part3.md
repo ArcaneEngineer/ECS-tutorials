@@ -137,7 +137,9 @@ We debut a new array, `componentsByIndex`, which contains a `prototype` e.g. `tu
 
 ### Interlude for Javascript afficionados
 
-I apologise for using the member name `prototype` here. You will know that this can cause confusion with the various with under-the-hood use of `[[Prototype]]`, `__proto__` etc. by Javascript. _However_, since this word accurately describes what we're doing, and is what was used in part 2, as well as the fact that diffing `part [n-1].js` with `part [n].js` is the best way to follow these tutorials, I have decided to keep the name as it is. You could use the term `blueprint` if you prefer, although I see this as more of a `class` than of an `object` prototype.
+I apologise for using the member name `prototype` here. You will know that this can cause confusion with the various under-the-hood uses of `[[Prototype]]`, `__proto__` etc. by Javascript.
+
+_However_, since this word accurately describes what we're doing, and is what was used in part 2, as well as the fact that diffing `part [n-1].js` with `part [n].js` is the best way to follow these tutorials, I have decided to keep the name as it is. You could use the term `blueprint` if you prefer, although I see this as more of a `class` than of an `object` prototype.
 
 Thanks for understanding.
  
