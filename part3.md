@@ -14,7 +14,7 @@ As part of this process, we will also begin to support the idea of _entity arche
  
 ### Archetypes: what are they?
 
-An archetype is basically the unique collection of active components which defines an entity.
+An archetype is the unique collection of active components which defines an entity.
 
 For example, a tank is something that has active `hull`, `turret`, `trackLeft` and `trackRight`components, in addition to the ubiquitous `transform` and `motion` components being active. That collection of active component types is the tank _archetype_. Anything that shares these active components can also be considered to be a tank.
 
