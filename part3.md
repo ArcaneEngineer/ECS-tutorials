@@ -2,15 +2,11 @@
 
 [In the first two parts](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md), we set up Tiny Tanks a proof-of-concept that demonstrates an Entity-Component System (ECS) with complex, (de)activatable components, and inter-component activity _within a single entity_.
 
-However, our ECS is still very tightly coupled and application-specific, which is less than ideal.
-
-In part 3, we will _refactor_: without changing existing functionality or adding anything new, we'll begin to generalise our existing ECS.
+However, our ECS is still very tightly coupled and application-specific. So in part 3, we will _refactor_: without changing existing functionality or adding anything new, we'll begin to make our existing ECS less application-specific and more general or agnostic in the way it views entity-component data.
 
 ## Technical overview
 
-Our ECS initialisation phase will become more general and less specific to our particular game, so that it could be reused for another game.
-
-As part of this process, we will also begin to support the idea of _entity archetypes_.
+Our ECS initialisation phase will be generalised. As part of this process, we will also implement support for _entity archetypes_.
  
 ### Archetypes: what are they?
 
@@ -25,7 +21,7 @@ I suggest downloading the project from [github](https://github.com/ArcaneEnginee
  
  I love using [kdiff3](https://kdiff3.sourceforge.net/) -- it allows 3-way diffs meaning you could compare parts [1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.js), [2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.js), and [3](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.js) side by side. 
  
-I have tried to keep the diff between parts 2 to 3 much clearer this time (part 1 to 2 was a bit messy). I will try to do so in future parts, as well.
+The diff between parts 2 to 3 is much clearer this time (part 1 to 2 was a bit messy). I will try to keep it so between future parts, where possible.
 
 ### Generalising the populate / initialise loop
 
@@ -69,7 +65,7 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 
 There are many application specifics here, which we'd only care about in the context of Tiny Tanks.
 
-We can see clear sections in the above code, where different types of tasks are being handled. The pseudocode we can derive from this is:
+We see clear sections in the above code, where different types of tasks are being handled. The pseudocode we can derive from this is:
 
 ```
 for (let e = 0; e < ENTITIES_COUNT; e++)
@@ -93,13 +89,19 @@ We should split this up into two separate phases for clarity.
 
 (If this were implemented in C, we wouldn't even need the population section, due to the way arrays-of-`struct` are allocated, zeroed automatically, and accessed.)
 
+Phase 1 is population:
+
 ```
 //array contents definition / population (all)
 for (let e = 0; e < ENTITIES_COUNT; e++)
 {
 	declare / assign to array, all possible component objects for each entity
 }
+```
 
+Phase 2 is initialisation and activation:
+
+```
 //array contents initialisation (some)
 for (let e = 0; e < ENTITIES_COUNT; e++)
 {
@@ -119,7 +121,7 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 
 ### Generalising the population loop (only)
 
-Right. From our pseudocode, let's write the actual population code, which is now way more concise:
+Right. From our population (phase 1) pseudocode, let's write the actual population code, which is now way more concise:
 
 ```
 // Populate component data arrays unconditionally for all entities (object instances).
@@ -135,21 +137,23 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 }
 ```
 
-For each line of code here, we can see clear analogues with the first few lines of code in the original version (`transforms [e] = structuredClone(transformPrototype);` etc.).
+For each line of code here, we see clear analogues with the first few lines of code in the original version, i.e. `transforms [e] = structuredClone(transformPrototype);` etc.
 
-We debut a new array, `componentsByIndex`, which contains a `prototype` e.g. `turretPrototype` (I've avoided using the exact word `prototype`, since Javascript uses this internally), and an `array` e.g. `turrets`. The first (`prototype`) is used to instantiate and assign to the second (`array`).
+We debut a new array, `componentsByIndex`, which contains a `prototype` e.g. `turretPrototype`, and an `array` e.g. `turrets`. The `component.prototype` is used to instantiate and assign to the `component.array`.
 
-`componentsByIndex` is central to how we will generalise our ECS now and in the future, so pay close attention to its structure (which we'll describe shortly) and its usage in the sections below.
+`componentsByIndex` is central to how we will generalise our ECS now and in the future, so pay close attention to its structure and its usage, both of which are described in the sections below.
 
-### A brief interlude for Javascript afficionados
+### A side note for Javascript afficionados
 
-I used the member name `prototype` here, apologies. This could potentially cause confusion with the various under-the-hood uses of `[[Prototype]]`, `__proto__` etc. by Javascript's type system.
+I used the member name `prototype` here. This could potentially cause confusion with the various under-the-hood uses of `[[Prototype]]`, `__proto__` etc. by Javascript's type system.
 
-_However_, since this word accurately describes what we're doing, and is what was used in part 2, as well as the fact that diffing `part [n-1].js` with `part [n].js` is the best way to follow these tutorials, I have decided to keep the name as it is. You could use the term `blueprint` if you prefer, although I see a `blueprint` as more of a `class` than of an `object` prototype. Thanks for understanding.
+_However_, this word accurately describes what we're doing, and is what was used in part 2. Also, diffing `part [n-1].js` with `part [n].js` is the best way to follow these tutorials.
+
+For these two reasons I have decided to keep the name as it is. Your understanding is appreciated.
  
 ### Generalising the initialisation loop (only)
 
-The initialisation section from [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md) was quite tank-specific (as opposed to bullet-specific). Now it generalises to:
+The initialisation section from [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md) was quite tank-specific (as opposed to bullet-specific). Now it generalises completely, knowing nothing (being _agnostic_) as regards either tanks or bullets:
 
 ```
 // Initialise conditionally depending on each entity's given archetype.
@@ -167,11 +171,11 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 }
 ```
 
-OK, this is where we reach archetypes as they apply to code. Let's explain.
+OK, here, archetypes become code. Let's explain.
 
-First, we pull an archetype from an `entityRawData` which represents the hard-coded, randomly generated, or loaded ("raw") data, which we will parse into actual entities / components, and which holds the archetype index as `.archeType`.
+First, we pull an archetype index from an `entityRawData`, which represents the hard-coded, randomly generated, or loaded ("raw") data, which we'll parse into actual entities / components.
 
-The archetype itself is then retrieved using that index. It contains the _component (type) dependencies_ which define the archetype. For each of those component types, 
+The archetype itself is retrieved using that index. It contains the _component (type) dependencies_ which define the archetype. For each of the archetype's component types,
 - we retrieve the necessary `component` from the array of `componentsByIndex` (in its second appearance);
 - we initialise the `component` using a specialised `init` function stored on that `component`;
 - we set that component active for this entity `[e]`, so that this entity `[e]`'s component `[c]` will be processed once we start to `update` the simulation.
@@ -204,11 +208,11 @@ const componentsByIndex =
 
 See those `funcNull` references? We'll come back to those at the end of this article. Just know for now that they do _nothing at all_.
 
-You can see references to our old ([part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md) and [2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md)) `init*` functions, our old `*Prototype` objects, and our various old component arrays that we've always used. These are now assembled in one place in the code.
+You can see references to our old ([part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md) and [2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md)) `init*` functions, our old `*Prototype` objects, and our various old component arrays. These are now neatly assembled in one place in our code.
 
-By indexing into this components array using `[c]` in both the population and initialisation phases (and in an upcoming part of this series, also the update phase), we can select a component by its index, without knowing any specific names of functions or arrays (unlike parts 1 & 2).
+By indexing into this components array using `[c]` in both the population and initialisation phases (and in an upcoming part of this series, also the update phase), we are able to select a component by its index, without knowing any specific names of functions or arrays (unlike parts 1 & 2).
 
-This allows us to do generalised, list-style processing, and abstracts us away from Tiny Tanks specifics, meaning we could potentially use this code in other games or simulations. Exciting?
+This allows us to do generalised, list-style processing, and abstracts us away from Tiny Tanks specifics, meaning we could potentially use this code in other games or simulations!
 
 ### Archetypes: How they are defined
 
@@ -236,16 +240,16 @@ const entityArcheTypes =
 
 `entityArcheTypes` clearly define what we mean when we say `TANK` or `BULLET`, that is, of what components each of these entity archetypes is comprised.
 
-The `ARCHETYPE` enum array defines archetypes by name, pointing to the index in the second array. These archetypes are used in some custom code at the end of our initialisation phase:
+The `ARCHETYPE` enum array defines archetypes by numeric index, and indicate the index used for the archetype in the `entityArcheTypes` array. Archetypes are used in some custom code at the end of our initialisation phase:
 
 ```
 const entitiesRawData = 
 [
 	//TANKS
-	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
-	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
-	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
-	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
+	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 64,  y: 0} },
+	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 192, y: 0} },
+	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 320, y: 0} },
+	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 448, y: 0} },
 	
 	//BULLETS
 	{ archeType: ARCHETYPE.BULLET, [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
@@ -253,24 +257,15 @@ const entitiesRawData =
 	{ archeType: ARCHETYPE.BULLET, [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
 	{ archeType: ARCHETYPE.BULLET, [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
 ];
-
-//...and modify the tanks' raw data x positions by index e (spread across playfield).
-for (let e = 0; e < TANKS_COUNT; e++)
-{
-	let transform = entitiesRawData[e][COMPONENT.TRANSFORM];
-	transform.x = parseInt((GAP_BETWEEN_TANKS * e) + GAP_BETWEEN_TANKS / 2);
-
 ```
 
-(I added the second block (`//...and modify`) to keep `entitiesRawData` block neat and concise, rather than adding the `.x` modifications inline and making the code messy to read.)
+Why do we do use archetypes here? Well, defining just `ARCHETYPE.TANK` and `ARCHETYPE.BULLET` for each element of the array, we avoid having to list the full set of required components these would need, each and every time we define a new entity. That would be 4x for tanks, and 4x for bullets in this simple example.
 
-But why do we do this? Well, defining just `ARCHETYPE.TANK` and `ARCHETYPE.BULLET` for each element of the array, we avoid having to list the full set of required components these would need, each and every time we define a new entity.
-
-...That's 4x for tanks, and 4x for bullets in this simple example -- but could be hundreds, thousands or tens of thousands of times in a real-world game. Even if the data is saved and loaded, archetypes can keep your saved data many times smaller than it would be otherwise, by avoiding unnecessary repitition.
+But in a real game, there could be hundreds, thousands or tens of thousands of entities we need to process at startup. Even if the data is saved and loaded, the data could become enormous, putting more strain on the CPU.
 
 I'm sure you'll agree then, that archetypes serve a useful purpose!
 
-Also note that if we need to in future, we can set up more raw data in each element of `entitiesRawData`, like so:
+Note that if we need to in future, we can set up more raw data in each element of `entitiesRawData`, like so:
 
 ```
 { archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0}, [COMPONENT.MOTION]: {dx: 5, dy: 10}, ... },
@@ -282,11 +277,11 @@ While I assume familiarity with Javascript in these tutorials, you may not be fa
 - `{ [ARCHETYPE.BULLET] : [COMPONENT.TRANSFORM, COMPONENT.MOTION] }`
 - `{ [COMPONENT.TRANSFORM]: {x: 0, y: 0} }`
 
-If not familiar, see [ES6 computed property names](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#computed_property_names). It's pretty straightforward. `[COMPONENT.TRANSFORM]` translates to a property name (index) of `[0]`, `[COMPONENT.MOTION]` to `[1]`, etc., as per the `COMPONENT` enum array we set up.
+If not familiar, see [ES6 computed property names](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#computed_property_names). as per the `COMPONENT` enum array we set up, `[COMPONENT.TRANSFORM]` translates to a property name (index) of `[0]`, `[COMPONENT.MOTION]` to `[1]`, etc.
 
 ### Archetypes: How they are used
 
-We have set up archetypes using only numeric indices, for good reason: In our component array initialisation and activation phase which we looked at earlier (repeated here),
+We have set up archetypes using only numeric indices, for good reason: In our component arrays initialisation and activation phase which we looked at earlier (repeated here),
 
 ```
 // Initialise conditionally depending on each entity's given archetype.
@@ -304,12 +299,12 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 }
 ```
 
-...we can easily and _numerically_ index into the various aspects of our `entitiesRawData` (input) and `entityArcheTypes` (secondary input) arrays in order to accurately produce the contents of our `component.array` (output, that is, our components for the current entity `[e]`).
+...we can _numerically_ index into the various aspects of our `entitiesRawData` (input) and `entityArcheTypes` (secondary input) arrays in order to accurately produce the contents of our `component.array` (output, that is, our components for the current entity `[e]`).
 
 I prefer numeric indexing to name-based indexing, for two reasons:
 
-- it is more efficient [in most cases](https://stackoverflow.com/questions/10639488/faster-to-access-numeric-property-by-string-or-integer) -- comparisons can occur faster than `string` name based indexing. (I'm unsure how true this remains in 2024 across different browsers)
-- Since you the reader could implement an ECS in your language of choice, it's best to opt for the most language-agnostic approach, in case you don't have string-keyed map support, which Javascript objects have (or indeed _are_) by default.
+- it is more efficient [in most cases](https://stackoverflow.com/questions/10639488/faster-to-access-numeric-property-by-string-or-integer) -- comparisons occur faster than `string` name based indexing.
+- Since you could implement an ECS in your language of choice, it's best to opt for the most language-agnostic approach, in case you don't have string-keyed map support, which Javascript objects have by default.
 
 ### Updating our component initialisation functions
 
@@ -376,8 +371,7 @@ Notice that both their function signature (arguments list) and content has chang
 
 The upshot? If raw data is provided in the function call, we use it -- else we randomly generate data within acceptable ranges.
 
-In future, I would like to abstract this logic so we don't need `if-else` blocks between every single `init*` concrete function (`initTransform`, `initMotion` etc.). But as there are only three of them at present, this suffices for now. (In OOP, this change could be made using either a base `class` / virtual method, or by the use of `interfaces` or `traits`.)
-
+In future, I would like to abstract this logic so we don't need `if-else` blocks between every single `init*` concrete function (`initTransform`, `initMotion` etc.).
 
 ### The Null Design Pattern
 
@@ -406,7 +400,7 @@ In future, we will also use empty object literals where no prototype exists:
 const nullPrototype = {};
 ```
 
-But for now, that's all, folks!
+But that will be for a future part of this series!
 
 ### Result
 
