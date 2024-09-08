@@ -424,7 +424,7 @@ While initialisation code has become more obscure to understand -- this is usual
 
 In so doing, our runtime code has become more abstract and a tad more difficult to understand, as parts of that code moved into the initialisation section as (soon to be) pure data. Thus, the _density_ of the different sections of our code has changed, which indicates a shift towards a [data driven design](#). 
 
-In time, all initialisation data will come from data sources, e.g. JSON files or a database, representing either serialised savegames or data produced by game designers, either by hand or by say, a custom-built editor. That is one of our medium-terms goals as we continue this series.
+In time, all initialisation data will come from data sources, e.g. JSON files or a database, representing either serialised savegames or data produced by game designers, by hand or by custom-built editor. To have our ECS _purely data-driven_ is one of our goals as we continue this series.
 
 In the next part, we'll further differentiate our two entity archetypes, add a third archetype, and generalise our game logic updates and render code.
 
