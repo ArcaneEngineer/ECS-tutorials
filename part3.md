@@ -428,5 +428,5 @@ In so doing, our runtime code has become more abstract and a tad more difficult 
 
 In time, all initialisation data will come from data sources, e.g. JSON files or a database, representing either serialised savegames or data produced by game designers, either by hand or by say, a custom-built editor. That is one of our medium-terms goals as we continue this series.
 
-In the next lesson, we will look at further differentiating our two entity archetypes, adding a third archetype, and begin to generalise the second part of our code: runtime updates.
+In the next part, we'll further differentiating our two entity archetypes, add a third archetype, and generalise our game logic updates and render code.
 
