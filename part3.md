@@ -208,13 +208,13 @@ See those `funcNull` references? We'll come back to those at the end of this art
 
 You can see references to our old ([part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md) and [2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md)) `init*` functions, our old `*Prototype` objects, and our various old component arrays that we've always used. These are now assembled in one place in the code.
 
-By indexing into this components array using `[c]` in both the population and initialisation phases (and in an upcoming part of this series, also the update phase), we can select a component by its index, without knowing any specific names of functions or arrays (as we had to in parts 1 & 2).
+By indexing into this components array using `[c]` in both the population and initialisation phases (and in an upcoming part of this series, also the update phase), we can select a component by its index, without knowing any specific names of functions or arrays (unlike parts 1 & 2).
 
-This allows us to do generalised, list-style processing, and abstracts us away from any Tiny Tanks specifics, meaning we could potentially use this code in other games or simulations. Exciting.
+This allows us to do generalised, list-style processing, and abstracts us away from any Tiny Tanks specifics, meaning we could potentially use this code in other games or simulations. Exciting?
 
-### Archetypes: How they are defined and used
+### Archetypes: How they are defined
 
-We just mentioned archetype indices. So let's review them in full.
+We just mentioned archetype indices. Let's review them in full.
 
 The archetype arrays, which reference into the `COMPONENT` enum array we've just looked at, are simple:
 
@@ -266,7 +266,13 @@ for (let e = 0; e < TANKS_COUNT; e++)
 
 (I added the second block (`//...and modify`) to keep `entitiesRawData` block neat and concise, rather than adding the `.x` modifications inline and making the code messy to read.)
 
-If we need to in future, we can set up more raw data in each element of `entitiesRawData`, like so:
+But why do we do this? Well, defining just `ARCHETYPE.TANK` and `ARCHETYPE.BULLET` for each element of the array, we avoid having to list the full set of required components these would need, each and every time.
+
+...That's 4x for tanks, and 4x for bullets in this simple example -- but could be hundreds, thousands or tens of thousands of times in a real-world game. Even if the data is saved and loaded, archetypes can keep your saved data many times smaller than it would be otherwise, by avoiding unnecessary repitition.
+
+I'm sure you'll agree then, that archetypes serve a useful purpose!
+
+Also note that if we need to in future, we can set up more raw data in each element of `entitiesRawData`, like so:
 
 ```
 { archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0}, [COMPONENT.MOTION]: {dx: 5, dy: 10}, ... },
@@ -280,7 +286,9 @@ While I assume familiarity with Javascript in these tutorials, you may not be fa
 
 If not familiar, see [ES6 computed property names](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#computed_property_names). It's pretty straightforward. `[COMPONENT.TRANSFORM]` translates to a property name (index) of `0`, `[COMPONENT.MOTION]` to `1`, etc., as per the `COMPONENT` enum array we set up.
 
-We have set archetypes up this way (using only numeric indices and no named indices) for good reason: In our component array initialisation and activation phase which we looked at earlier (repeated here),
+### Archetypes: How they are used
+
+We have set up archetypes using only numeric indices, for good reason: In our component array initialisation and activation phase which we looked at earlier (repeated here),
 
 ```
 // Initialise conditionally depending on each entity's given archetype.
@@ -305,11 +313,11 @@ I prefer numeric indexing to name-based indexing, for two reasons:
 - it is more efficient [in most cases](https://stackoverflow.com/questions/10639488/faster-to-access-numeric-property-by-string-or-integer) -- comparisons can occur faster than `string` name based indexing. (I'm unsure how true this remains in 2024 across different browsers)
 - Since you the reader could implement an ECS in your language of choice, it's best to opt for the most language-agnostic approach, in case you don't have string-keyed map support, which Javascript objects have (or indeed _are_) by default.
 
-### A change to individual component initialisation functions
+### Updating our component initialisation functions
 
-Above, I mentioned "more on this shortly" when talking about `component.init`, or more specifically, the `initTransform`, `initTurret` etc. functions that back our generalised `component.init`.
+Above, I said "more on this shortly" when talking about `component.init`, or more specifically, the `initTransform`, `initTurret` etc. functions that back our generalised `component.init`.
 
-To get these `init*` functions to read in the necessary raw data, we have to change them slightly:
+To get these `init*` functions to read in the necessary raw data which we pass as the second argument or parameter, we have to change them slightly:
 
 ```
 //--- Declare component initialisation functions ---//
@@ -368,14 +376,14 @@ function initTrack(track, data)
 
 Notice that both their function signature (arguments list) and content has changed (conditional blocks added). However, within each `else` block, the code is exactly the same as in [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md)](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md).
 
-The upshot is that if raw data is provided in the function call, use it -- else randomly generate data within acceptable ranges.
+The upshot is that if raw data is provided in the function call, we use it -- else we randomly generate data within acceptable ranges.
 
 In future, I would like to abstract this logic so we don't need `if-else` blocks between every single `init*` concrete function (`initTransform`, `initMotion` etc.). But as there are only three of them at present, this suffices for now. (In OOP, this change could be made using either a base `class` / virtual method, or by the use of `interfaces` or `traits`.)
 
 
 ### The Null Design Pattern
 
-Finally, there is a function we use if no initialiser exists.
+Finally, there is a special function which we use if no initialiser or updater function exists for a given component type.
 
 ```
 function funcNull(component, data) {} //"null pattern"
@@ -408,7 +416,7 @@ But for now, that's all, folks!
 
 As this was a pure refactoring exercise, our output has is indistinguishable from that of [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md).
 
-The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials).
+The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials/part3.js).
 
 ## Conclusion
 
