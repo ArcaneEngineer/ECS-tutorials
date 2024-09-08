@@ -412,7 +412,7 @@ But for now, that's all, folks!
 
 ![part2_tiny_tanks.png](https://ucarecdn.com/c204fb62-5e6d-43b5-afc4-87980adc47f1/)
 
-As this was a pure refactoring exercise, our output has is indistinguishable from that of [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md).
+As this was a pure refactoring exercise, our output is indistinguishable from that of [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md).
 
 The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials/part3.js).
 
