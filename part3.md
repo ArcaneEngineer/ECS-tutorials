@@ -22,6 +22,8 @@ For example, a tank is something that has active `hull`, `turret`, `trackLeft` a
 
 I suggest downloading the project from [github](https://github.com/ArcaneEngineer/ECS-tutorials)
  and using a [diff](https://www.google.com/search?q=diff+meaning) tool to compare [`part2.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.js) against [`part3.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.js). I love using [kdiff3](https://kdiff3.sourceforge.net/) -- it allows 3-way diffs meaning you could compare parts [1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.js), [2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.js), and [3](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.js) side by side. 
+ 
+I have tried to keep the diff between parts 2 to 3 much clearer this time (part 1 to 2 was a bit messy), and I will continue to do so in future parts wherever possible.
 
 ### Generalising the populate / initialise loop
 
@@ -355,6 +357,8 @@ function initTrack(track, data)
 	}
 }
 ```
+
+...This logic was included because we need a way to initially set up the `transform.x` positions of our tanks, and not of the bullets. However, it generalises across any component and any data member (field) of that component. Definitely a net win to add it to the code, then!
 
 Notice that both their function signature (arguments list) and content has changed (conditional blocks added). However, within each `else` block, the code is exactly the same as in [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md)](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md).
 
