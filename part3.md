@@ -414,11 +414,11 @@ The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tu
 
 We've seen how to generalise the intialisation phase of our ECS, by having it take generalised components and entity archetypes, and (almost magically) turn these into a running system.
 
-While initialisation code has become more obscure to understand -- this is usually the curse of [abstraction](https://en.wikipedia.org/wiki/Abstraction_(computer_science)) -- the power of our ECS has also grown enormously, such that we could already begin to see how it might be used for different games, and an endless array of different entity and component types.
-
-In so doing, our runtime code has become more abstract and a tad more difficult to understand, as parts of that code moved into the initialisation section as (soon to be) pure data. Thus, the _density_ of the different sections of our code has changed, which indicates a shift towards a [data driven design](#). 
+While initialisation code has become more obscure to understand -- this is usually the curse of [abstraction](https://en.wikipedia.org/wiki/Abstraction_(computer_science)) -- the power of our ECS has also grown enormously, such that we could already begin to see how it might be used for different games, and an endless array of different entity and component types. The _density_ of the different sections of our code has changed, indicating a shift towards a [data driven design](#). 
 
 In time, all initialisation data will come from data sources, e.g. JSON files or a database, representing either serialised savegames or data produced by game designers, by hand or by custom-built editor. To have our ECS _purely data-driven_ is one of our goals as we continue this series.
+
+We saw that the `componentsByIndex` holds not only the concrete data for each component type, but also a kind of _general component type information_. Archetypes, too, provide something akin to the info that the [builder pattern](http://en.wikipedia.org/wiki/Builder_pattern) needs to build its composite objects in OOP. For those who wonder how OOP was invented (i.e. how C evolved into C++), we begin to see how primitive type systems were written in C (or C-like) environments in the not-so-distant past.
 
 In the next part, we'll further differentiate our two entity archetypes, add a third archetype, and generalise our game logic updates and render code.
 
