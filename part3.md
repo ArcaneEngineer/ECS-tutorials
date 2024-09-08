@@ -16,14 +16,16 @@ As part of this process, we will also begin to support the idea of _entity arche
 
 An archetype is basically the unique collection of active components which defines an entity.
 
-For example, a tank is something that has active `hull`, `turret`, `trackLeft` and `trackRight`components, in addition to the ubiquitous `transform` and `motion` components being active. That collection of active component types is the tanks _archetype_. Anything that shares these active components can also be considered to be a tank.
+For example, a tank is something that has active `hull`, `turret`, `trackLeft` and `trackRight`components, in addition to the ubiquitous `transform` and `motion` components being active. That collection of active component types is the tank _archetype_. Anything that shares these active components can also be considered to be a tank.
 
 ## Writing the Code
 
 I suggest downloading the project from [github](https://github.com/ArcaneEngineer/ECS-tutorials)
- and using a [diff](https://www.google.com/search?q=diff+meaning) tool to compare [`part2.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.js) against [`part3.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.js). I love using [kdiff3](https://kdiff3.sourceforge.net/) -- it allows 3-way diffs meaning you could compare parts [1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.js), [2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.js), and [3](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.js) side by side. 
+ and using a [diff](https://www.google.com/search?q=diff+meaning) tool to compare [`part2.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.js) against [`part3.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.js).
  
-I have tried to keep the diff between parts 2 to 3 much clearer this time (part 1 to 2 was a bit messy), and I will continue to do so in future parts wherever possible.
+ I love using [kdiff3](https://kdiff3.sourceforge.net/) -- it allows 3-way diffs meaning you could compare parts [1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.js), [2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.js), and [3](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.js) side by side. 
+ 
+I have tried to keep the diff between parts 2 to 3 much clearer this time (part 1 to 2 was a bit messy). I will try to do so in future parts, as well.
 
 ### Generalising the populate / initialise loop
 
@@ -67,7 +69,7 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 
 There are many application specifics here, most of which we'd only care about in the context of Tiny Tanks.
 
-We can however see clear sections in this code, where different types of tasks are being handled. Roughly speaking, the pseudocode we can derive from this is:
+We can see clear sections in the above code, where different types of tasks are being handled. The pseudocode we can derive from this is:
 
 ```
 for (let e = 0; e < ENTITIES_COUNT; e++)
@@ -87,7 +89,9 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 }
 ```
 
-We should split this up into two separate phases for clarity. (If this were implemented in C, we wouldn't even need the population section, due to the way arrays-of-`struct` are allocated, zeroed automatically, and accessed.)
+We should split this up into two separate phases for clarity.
+
+(If this were implemented in C, we wouldn't even need the population section, due to the way arrays-of-`struct` are allocated, zeroed automatically, and accessed.)
 
 ```
 //array contents definition / population (all)
@@ -115,7 +119,7 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 
 ### Generalising the population loop (only)
 
-Right. From that pseudocode, let's write the actual population code, which is now way more concise:
+Right. From our pseudocode, let's write the actual population code, which is now way more concise:
 
 ```
 // Populate component data arrays unconditionally for all entities (object instances).
@@ -131,7 +135,7 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 }
 ```
 
-For each line of code here, you should be able to see clear analogues with the first few lines of code in the original version (`transforms [e] = structuredClone(transformPrototype);` etc.).
+For each line of code here, we can see clear analogues with the first few lines of code in the original version (`transforms [e] = structuredClone(transformPrototype);` etc.).
 
 We debut a new array, `componentsByIndex`, which contains a `prototype` e.g. `turretPrototype` (I've avoided using the exact word `prototype`, since Javascript uses this internally), and an `array` e.g. `turrets`. The first (`prototype`) is used to instantiate and assign to the second (`array`).
 
@@ -139,7 +143,7 @@ We debut a new array, `componentsByIndex`, which contains a `prototype` e.g. `tu
 
 ### A brief interlude for Javascript afficionados
 
-I apologise for using the member name `prototype` here. This could potentially cause confusion with the various under-the-hood uses of `[[Prototype]]`, `__proto__` etc. by Javascript's type system.
+I used the member name `prototype` here, apologies. This could potentially cause confusion with the various under-the-hood uses of `[[Prototype]]`, `__proto__` etc. by Javascript's type system.
 
 _However_, since this word accurately describes what we're doing, and is what was used in part 2, as well as the fact that diffing `part [n-1].js` with `part [n].js` is the best way to follow these tutorials, I have decided to keep the name as it is. You could use the term `blueprint` if you prefer, although I see a `blueprint` as more of a `class` than of an `object` prototype.
 
@@ -147,7 +151,7 @@ Thanks for understanding.
  
 ### Generalising the initialisation loop (only)
 
-The initialisation section from [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md) was quite tank-specific (as opposed to bullet-specific), now it generalises to:
+The initialisation section from [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md) was quite tank-specific (as opposed to bullet-specific). Now it generalises to:
 
 ```
 // Initialise conditionally depending on each entity's given archetype.
@@ -165,9 +169,9 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 }
 ```
 
-OK, this is where we touch on archetypes.
+OK, this is where we reach archetypes as they apply to code. Let's explain.
 
-First we pull an archetype from an `entityRawData` which represents the hard-coded, randomly generated, or loaded ("raw") data, which we will parse into actual entities / components, and which holds the archetype index as `.archeType`.
+First, we pull an archetype from an `entityRawData` which represents the hard-coded, randomly generated, or loaded ("raw") data, which we will parse into actual entities / components, and which holds the archetype index as `.archeType`.
 
 The archetype itself is then retrieved using that index. It contains the _component (type) dependencies_ which define the archetype. For each of those component types, 
 - we retrieve the necessary `component` from the array of `componentsByIndex` (in its second appearance);
@@ -200,11 +204,13 @@ const componentsByIndex =
 ];
 ```
 
-See those `funcNull` references? We'll come back to those at the end of this article.
+See those `funcNull` references? We'll come back to those at the end of this article. Just know for now that they do _nothing at all_.
 
 You can see references to our old ([part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md) and [2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md)) `init*` functions, our old `*Prototype` objects, and our various old component arrays that we've always used. These are now assembled in one place in the code.
 
-By indexing into this components array using `[c]` in both the population and initialisation phases (and in an upcoming part of this series, the update phase), we can select a component by its (archetype) index, without knowing any specific names of functions or arrays. This allows us to do generalised, list-style processing, and abstracts us away from any Tiny Tanks specifics, meaning we could potentially use this code in other games or simulations.
+By indexing into this components array using `[c]` in both the population and initialisation phases (and in an upcoming part of this series, also the update phase), we can select a component by its index, without knowing any specific names of functions or arrays (as we had to in parts 1 & 2).
+
+This allows us to do generalised, list-style processing, and abstracts us away from any Tiny Tanks specifics, meaning we could potentially use this code in other games or simulations. Exciting.
 
 ### Archetypes: How they are defined and used
 
