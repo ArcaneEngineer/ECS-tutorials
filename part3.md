@@ -23,7 +23,7 @@ For this reason, we will also be further defining a bullet, so that it is clear 
 ## Writing the Code
 
 I suggest downloading the project from [github](https://github.com/ArcaneEngineer/ECS-tutorials)
- and using a [diff](https://www.google.com/search?q=diff+meaning) tool to compare `part2.js` against `part3.js`. I love using [kdiff3](https://kdiff3.sourceforge.net/) -- it allows 3-way diffs meaning you could compare parts 1, 2, and 3 side by side. 
+ and using a [diff](https://www.google.com/search?q=diff+meaning) tool to compare [`part2.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.js) against [`part3.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.js). I love using [kdiff3](https://kdiff3.sourceforge.net/) -- it allows 3-way diffs meaning you could compare parts [1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.js), [2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.js), and [3](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.js) side by side. 
 
 ### Generalising the populate / initialise loop
 
@@ -140,7 +140,7 @@ We debut a new array, `componentsByIndex`, which contains a `proto_` e.g. `turre
 
 ### Generalising the initialise loop
 
-The initialisation section from part 2 was quite tank-specific (as opposed to bullet-specific), now it generalises to:
+The initialisation section from [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md) was quite tank-specific (as opposed to bullet-specific), now it generalises to:
 
 ```
 // Initialise conditionally depending on each entity's given archetype.
@@ -195,7 +195,7 @@ const componentsByIndex =
 
 See those `funcNull` references? We'll come back to those at the end of this article.
 
-You can see references to our old (part 1 and 2) `init*` functions, our old `*Prototype` objects, and our various old component arrays that we've always used. These are now assembled in one place in the code.
+You can see references to our old ([part 1](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.md) and [2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md)) `init*` functions, our old `*Prototype` objects, and our various old component arrays that we've always used. These are now assembled in one place in the code.
 
 By indexing into this components array using `[c]` in both the population and initialisation phases (and in an upcoming part of this series, the update phase), we can select a component by its (archetype) index, without knowing any specific names of functions or arrays. This allows us to do generalised, list-style processing, and abstracts us away from any Tiny Tanks specifics, meaning we could potentially use this code in other games or simulations.
 
@@ -282,7 +282,7 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 
 ...we can easily and _numerically_ index into the various aspects of our `entitiesRawData` (input) and `entityArcheTypes` (secondary input) arrays in order to accurately produce the contents of our `component.array` (output, that is, our components for the current entity `[e]`).
 
-Numeric indexing is preferable to property name indexing [in most cases](https://stackoverflow.com/questions/10639488/faster-to-access-numeric-property-by-string-or-integer), since comparisons can occur faster than `string` name based indexing. (I do not know exactly how true this remains in Javascript across different browsers in 2024, but I opt for a C-like approach in the name of efficiency and language-agnosticism, as you the reader could implement such an ECS in your language of choice.)
+I prefer numeric indexing to name-based indexing, as [in most cases](https://stackoverflow.com/questions/10639488/faster-to-access-numeric-property-by-string-or-integer), since comparisons can occur faster than `string` name based indexing. (I'm unsure how true this remains in 2024 across different browsers, but as you the reader could implement such an ECS in your language of choice, it's best to opt for the most language-agnostic approach, in case you don't have string-keyed map support.)
 
 ### A change to individual component initialisation functions
 
@@ -343,7 +343,7 @@ function initTrack(track, data)
 }
 ```
 
-Notice that both their function signature (arguments list) and content has changed (conditional blocks added).
+Notice that both their function signature (arguments list) and content has changed (conditional blocks added). However, within each `else` block, the code is exactly the same as in [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md)](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md).
 
 The upshot is that if raw data is provided in the function call, use it -- else randomly generate data within acceptable ranges.
 
@@ -377,21 +377,23 @@ In future lesson, we will also use empty object literals where no prototype exis
 const nullPrototype = {};
 ```
 
+But for now, that's all, folks!
+
 ### Result
 
 ![part2_tiny_tanks.png](https://ucarecdn.com/c204fb62-5e6d-43b5-afc4-87980adc47f1/)
 
-As this was a pure refactoring exercise, our output has is indistinguishable from that of part 2.
+As this was a pure refactoring exercise, our output has is indistinguishable from that of [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md).
 
 The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials).
 
 ## Conclusion
 
-In this lesson, we've seen how we can begin to generalise he intialisation phase of the ECS, by having it take generalised components and entity archetypes, and turn these into a running system.
+In this lesson, we've seen how we can begin to generalise he intialisation phase of the ECS, by having it take generalised components and entity archetypes, and turn these into a running system. The power of our ECS has grown enormously, such that we could already begin to see how it might be used for different games, not only Tiny Tanks. 
 
-In so doing, our runtime code (as denoted) has become more abstract and a tad more difficult to understand, but the power of our ECS has grown enormously, such that we could already begin to see how it might be used for different games, not only Tiny Tanks. 
+In so doing, our runtime code (as denoted) has become more abstract and a tad more difficult to understand, as parts of that code moved into the (denoted) initialisation section (pure data). Thus, the _density_ of the different sections of our code has changed, which indicates a shift towards a [data driven design](#). 
 
-Application-specific code become more general and less cluttered, as parts of that code moved into the (denoted) initialisation section (pure data). Thus, the _density_ of the different sections of our code has changed. This change indicates a shift towards a [data driven design](#). In time, all initialisation data will come from data sources, e.g. JSON files or a database, representing either serialised savegames or data produced by game designers, either by hand or by say, a custom-built editor.
+In time, all initialisation data will come from data sources, e.g. JSON files or a database, representing either serialised savegames or data produced by game designers, either by hand or by say, a custom-built editor. That is one of our medium-terms goals as we continue this series.
 
 In the next lesson, we will look at further differentiating our two entity archetypes, adding a third archetype, and begin to generalise the second part of our code: runtime updates.
  
