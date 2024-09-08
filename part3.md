@@ -74,9 +74,9 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 
 	if this counts as a tank entity
 	{
-		initialise every such entity
+		initialise this entity's applicable components
 	
-		set active every such entity
+		set active this entity's applicable components
 	}
 	else if this counts as a bullet entity
 	{
@@ -107,9 +107,9 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 {
 	if this counts as a tank entity
 	{
-		initialise every such entity
+		initialise this entity's applicable components
 	
-		set active every such entity
+		set active this entity's applicable components
 	
 	}
 	else if this counted as a bullet entity
