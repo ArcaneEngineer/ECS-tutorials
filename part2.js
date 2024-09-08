@@ -13,8 +13,6 @@ const GAP_BETWEEN_TANKS = canvas.width / TANKS_COUNT;
 
 const BULLET_RADIUS = 3;
 
-const HULL_HEALTH_MIN = 0;
-const HULL_HEALTH_MAX = 10;
 const TURRET_ANGLE_MIN = 0;
 const TURRET_ANGLE_MAX = 2 * Math.PI;
 const TURRET_RELOADTIME_MIN = 10;

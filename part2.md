@@ -183,9 +183,6 @@ etc.
 Directly after those lines, we have a bunch of new constants that will be used for (randomly) initialising components per individual tank, each of these pairs (`*MIN`..`*MAX`) forms a numeric _range_:
 
 ```
-const HULL_HEALTH_MIN = 0;
-const HULL_HEALTH_MAX = 10;
-
 const TURRET_ANGLE_MIN = 0;
 const TURRET_ANGLE_MAX = 2 * Math.PI;
 

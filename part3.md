@@ -1,18 +1,20 @@
 # ENTITY COMPONENT SYSTEMS: Part 3
 
-[In the first two parts](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md), we set up Tiny Tanks a proof-of-concept that demonstrates an Entity-Component System (ECS) with complex, deactivatable components, and inter-component activity _within a single entity_.
+[In the first two parts](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md), we set up Tiny Tanks a proof-of-concept that demonstrates an Entity-Component System (ECS) with complex, (de)activatable components, and inter-component activity _within a single entity_.
 
-Now in part 3, we will further generalise the existing system, as well as making it the computer-controlled tanks (entities) more interactive.
+However, our ECS is still very tightly coupled and application-specific in numerous areas, which is less than ideal.
+
+In part 3, we will _refactor_: without changing existing functionality or adding anything new, we'll begin to generalise our existing ECS.
 
 ## Technical overview
 
-In part 3, we will elaborate our ECS demo further by adding inter-entity, inter-component interactions. This will take the form of bullets that can hit other tanks and disable them.
+Our ECS initialisation phase will become more general and less specific to our particular game, so that it might be reused for another game.
 
-We will also start looking into how we can make our main ECS loop function be more general and less specific to our particular game, so that it might be reused for another game.
+As part of this process, we will also begin to support the idea of _entity archetypes_.
  
 ### Archetypes: what are they?
 
-A key word we will need to use in this lesson is _archetype_. An archetype is basically the unique collection of active components which defines an entity.
+An archetype is basically the unique collection of active components which defines an entity.
 
 For example, a tank is something that has a `hull`, `turret`, `trackLeft` and `trackRight`, in addition to the ubiquitous `transform` and `motion` components being active. That collection of active component types is the tanks _archetype_. Anything that shares these active components can also be considered a tank.
 
@@ -20,64 +22,12 @@ For this reason, we will also be further defining a bullet, so that it is clear 
 
 ## Writing the Code
 
-### Adding back the tank's hull
-
-One of the things we got rid of previously was our tank `hull`. I would now like to put this back, since we will use it to see whether a tank is alive or dead. A tank can still be a tank without `tracks` or a `turret`, but without a `hull` (body), it's bye-bye tank.
-
-```
-const hullPrototype =
-{
-	isActive: false,
-	
-	isOnFire: false,
-	health: 0
-}
-```
-
-We'll also need the associated constants,
-
-```
-const HULL_HEALTH_MIN = 0;
-const HULL_HEALTH_MAX = 10;
-```
-
-And the initialisation function, 
-
-```
-function initHull(hull)
-{
-	hull.health = parseInt( lerp(HULL_HEALTH_MIN, HULL_HEALTH_MAX, Math.random()) );
-}
-
-```
-
-As you should have realised, we need to set this up along with all the rest of the components.
-
-```
-// Populate arrays for components of all tanks.
-for (let e = 0; e < ENTITIES_COUNT; e++)
-{
-	//define the object (structure) of each element of the entity-component table.
-	...
-	hulls      [e] = structuredClone(hullPrototype); // <--- added
-	...
-	
-	if (e < TANKS_COUNT) //it will be a tank
-	{
-		...
-	
-		hulls[e].isActive = true; //<---
-		initHull(transforms[e]);
-		
-		...
-```
-`...` being where we set up all the other component arrays and their elements.
+I suggest downloading the project from [github](https://github.com/ArcaneEngineer/ECS-tutorials)
+ and using a [diff](https://www.google.com/search?q=diff+meaning) tool to compare `part2.js` against `part3.js`. I love using [kdiff3](https://kdiff3.sourceforge.net/) -- it allows 3-way diffs meaning you could compare parts 1, 2, and 3 side by side. 
 
 ### Generalising the populate / initialise loop
 
-As we just touched on this loop, let's now refactor it into something that doesn't care about component types. For this, we'll use some more dynamic (runtime) features of Javascript, which are more difficult to achieve in a language like C. Hey, we get the best of both worlds here!
-
-Let's look at the whole loop, and evaluate what it's really doing.
+Let's look at the whole initialisation loop, and evaluate what it's really doing.
 
 ```
 // Populate arrays for components of all tanks.
@@ -115,12 +65,14 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 }
 ```
 
-Roughly speaking, the pseudocode I'm seeing from this is:
+There are many application specifics here, most of which we'd only care about in the context of Tiny Tanks.
+
+We can however see clear sections in this code, where different types of tasks are being handled. Roughly speaking, the pseudocode I'm seeing from this is:
 
 ```
 for (let e = 0; e < ENTITIES_COUNT; e++)
 {
-	define / assign all possible component objects for each entity
+	declare / assign all possible component objects for each entity
 
 	if this counts as a tank entity
 	{
@@ -136,133 +88,319 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 }
 ```
 
-So let's try to make it that short with actual code:
+We should split this up into two separate phases for clarity. (If this were implemented in C, we would't even need the population section, due to the way arrays-of-`struct` are allocated, zeroed automatically, and accessed.)
 
 ```
+//array contents definition / population (all)
 for (let e = 0; e < ENTITIES_COUNT; e++)
 {
-	//define / assign all possible component objects for each entity, regardless of archetype
-	for (let t = 0; t < componentTypes.length; t++)
+	declare / assign to array, all possible component objects for each entity
+}
+
+//array contents initialisation (some)
+for (let e = 0; e < ENTITIES_COUNT; e++)
+{
+	if this counts as a tank entity
 	{
-		let componentArray = componentArrays[t];
-		componentArray[e] = structuredClone(componentTypes[t].prototype_);
+		initialise every such entity
+	
+		set active every such entity
+	
+	}
+	else if this counted as a bullet entity
+	{
+		do nothing
 	}
 }
 ```
 
-Great, that's the first part done. But what about the second part? It's very tank-specific, so let's try to generalise that further:
+### Generalising the populate loop
+
+Right. From that pseudocode, let's write the actual population code, which is a _lot_ more concise:
 
 ```
-for (let e = 0; e < ENTITIES_COUNT; e++)
-{
-	//define / assign all possible component objects for each entity, regardless of archetype
-	...
-
-	if this counts as a particular archetype
-	{
-		initialise as per that archetype's init rules
-	
-		set active every entity of that archetype
-	}
-```
-
-That's better. But how do we know if something qualifies as a given archetype? Probably, it has to satisfy having active components for as per what that archetype requires. For example, a tank requires an active `hull`, `turret`, `tracks` etc.
-
-In concrete code that should look something like:
-
-```
-	let archetypeDeps = [...]; 
-	let isOfArchetype = true; //until proven false
-	for (let t of archetypeDeps)
-	{
-		isOfArchetype = isOfArchetype && componentArray[t].isActive;
-	}
-
-	if this counts as a particular archetype
-	{
-		initialise as per that archetype's init rules
-	
-		set active every entity of that archetype
-	}
-
-```
-
-
-### Avoiding the use of counts to decide entity type
-
-Last time, we did this in our entity definition and initialisation loop:
-
-```
+// Populate component data arrays unconditionally for all entities (object instances).
+// In C we could skip this loop, just malloc() array-of-struct correctly and be done.
 for (let e = 0; e < ENTITIES_COUNT; e++)
 {
 	//define the object (structure) of each element of the entity-component table.
-	transforms [e] = structuredClone(transformPrototype);
-	motions    [e] = structuredClone(motionPrototype);
-	turrets    [e] = structuredClone(turretPrototype);
-	trackLefts [e] = structuredClone(trackPrototype);
-	trackRights[e] = structuredClone(trackPrototype);
-	
-	if (e < TANKS_COUNT) //it will be a tank
+	for (let c = 0; c < componentsByIndex.length; c++)
 	{
-		transforms[e].isActive = true;
-		initTransformTank(transforms[e], e);
-		
-		...
-		
+		let component = componentsByIndex[c];
+		component.array[e] = structuredClone(component.proto_);
 	}
+}
 ```
 
-Because we don't want to fully define all entities as a list of data yet, and would rather just randomly generate them for now, this is OK, we're just saying that the first `TANKS_COUNT` are tanks, not bullets. (We may want to address this later, but it's fine for now.)
+For each line of code, you should be able to see clear analogues with the original version.
 
-However, what is not fine is this hack:
+We debut a new array, `componentsByIndex`, which contains a `proto_` e.g. `turretPrototype` (I've avoided using the word `prototype`, since Javascript uses this internally), and an `array` e.g. `turrets`. The first (`proto_`) is used to instantiate and assign to the second (`array`).
 
+`componentsByIndex` is central to how we will generalise our ECS now and in the future, so pay close attention to its structure (which we'll describe shortly) and its usage in the sections below.
+
+### Generalising the initialise loop
+
+The initialisation section from part 2 was quite tank-specific (as opposed to bullet-specific), now it generalises to:
 
 ```
-function renderEntities()
+// Initialise conditionally depending on each entity's given archetype.
+for (let e = 0; e < ENTITIES_COUNT; e++)
 {
-	...
+	let entityArcheTypeIndex = entitiesRawData[e].archeType;
+	let entityArcheType      = entityArcheTypes[entityArcheTypeIndex];
 	
-	for (let e = 0; e < ENTITIES_COUNT; e++)
+	for (let c of entityArcheType)
 	{
-		...
-		
-		if (e < TANKS_COUNT) //HACK!
-		{
-			if (transforms[e].isActive)
-			{
+		let component = componentsByIndex[c];
+		component.init(component.array[e], entitiesRawData[e][c]);
+		component.array[e].isActive = true;
+	}
+}
 ```
 
-A good ECS should never assume specifics about ranges within mutable lists or arrays, so using `if (e < TANKS_COUNT)` here is terrible architecture. An entity's _archetype_ should be based purely on what we observe about the `isActive` states of its various components.
+OK, this is where we touch on archetypes.
 
-To change this, we'll rather check whether the `hull` is active, since this is a component that will be unique to tanks and cannot be active if the tank is still "alive" (driving around).
+First we pull an archetype from an `entityRawData` which represents the hard-coded, randomly generated, or loaded ("raw") data, which we will parse into actual entities / components, and which holds the archetype index as `.archeType`.
+
+The archetype itself is then retrieved using that index. It contains the _component (type) dependencies_ which define the archetype. For each of those component types, 
+- we retrieve the necessary `component` from the array of `componentsByIndex` (in its second appearance);
+- we initialise the `component` using a specialised `init` function stored on that `component`;
+- we set that component active for this entity `[e]`, so that this entity `[e]`'s component `[c]` will be processed once we start to `update` the simulation.
+
+In order to understand this more clearly, let's look at what the component-related arrays look like.
 
 ```
-	for (let e = 0; e < ENTITIES_COUNT; e++)
+///--- Components ---///
+
+const COMPONENT =
+{
+	TRANSFORM: 0,
+	MOTION: 1,
+	TURRET: 2,
+	TRACK_LEFT: 3,
+	TRACK_RIGHT: 4,
+};
+
+const componentsByIndex =
+[
+	//in each case, we have type info and the data array.
+	//these could also be stored in 2 separate arrays.
+	{init: initTransform, update: updateTransform, proto_:transformPrototype, array: transforms},
+	{init: funcNull,      update: funcNull,        proto_:motionPrototype,    array: motions},
+	{init: initTurret,    update: updateTurret,    proto_:turretPrototype,    array: turrets},
+	{init: initTrack,     update: funcNull,        proto_:trackPrototype,     array: trackLefts},
+	{init: initTrack,     update: funcNull,        proto_:trackPrototype,     array: trackRights},
+];
+```
+
+See those `funcNull` references? We'll come back to those at the end of this article.
+
+You can see references to our old (part 1 and 2) `init*` functions, our old `*Prototype` objects, and our various old component arrays that we've always used. These are now assembled in one place in the code.
+
+By indexing into this components array using `[c]` in both the population and initialisation phases (and in an upcoming part of this series, the update phase), we can select a component by its (archetype) index, without knowing any specific names of functions or arrays. This allows us to do generalised, list-style processing, and abstracts us away from any Tiny Tanks specifics, meaning we could potentially use this code in other games or simulations.
+
+We just mentioned archetype indices. So let's review the archetype arrays, which reference into the `COMPONENT` enum array we've just looked at:
+
+```
+///--- Archetypes ---///
+
+const ARCHETYPE = 
+{
+	NONE: 0,
+	TANK: 1,
+	BULLET: 2,
+};
+
+const entityArcheTypes = 
+{
+	[ARCHETYPE.TANK  ] : [COMPONENT.TRANSFORM, COMPONENT.MOTION, COMPONENT.TURRET,
+						  COMPONENT.TRACK_LEFT, COMPONENT.TRACK_RIGHT],
+	[ARCHETYPE.BULLET] : [COMPONENT.TRANSFORM, COMPONENT.MOTION],
+};
+```
+
+The `entityArcheTypes` clearly defines what we mean when we say `TANK` or `BULLET`, that is, of what components each of these entity archetypes is comprised.
+
+The `ARCHETYPE` enum array defines archetypes by name, pointing to the index in the second array. These archetypes are used in some custom code at the end of our initialisation phase:
+
+```
+const entitiesRawData = 
+[
+	//TANKS
+	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
+	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
+	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
+	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
+	
+	//BULLETS
+	{ archeType: ARCHETYPE.BULLET, [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
+	{ archeType: ARCHETYPE.BULLET, [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
+	{ archeType: ARCHETYPE.BULLET, [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
+	{ archeType: ARCHETYPE.BULLET, [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
+];
+
+//...and modify the tanks' raw data x positions by index e (spread across playfield).
+for (let e = 0; e < TANKS_COUNT; e++)
+{
+	let transform = entitiesRawData[e][COMPONENT.TRANSFORM];
+	transform.x = parseInt((GAP_BETWEEN_TANKS * e) + GAP_BETWEEN_TANKS / 2);
+
+```
+
+(I added the second block (`//...and modify`) to keep `entitiesRawData` block neat and concise, rather than adding the `.x` modifications inline and making the code messy to read.)
+
+If we need to in future, we can set up more raw data in each element of `entitiesRawData`, like so:
+
+```
+{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0}, [COMPONENT.MOTION]: {dx: 5, dy: 10}, ... },
+```
+
+...Such data will then be auto-parsed into actual component data by `component.init`, and used during runtime updates, assuming it uses exactly the same structure as the component prototypes. More on this shortly.
+
+While I assume familiarity with Javascript in these tutorials, you may not be familiar with this syntax:
+- `{ [ARCHETYPE.BULLET] : [COMPONENT.TRANSFORM, COMPONENT.MOTION] }`
+- `{ [COMPONENT.TRANSFORM]: {x: 0, y: 0} }`
+If not, see [ES6 computed property names](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#computed_property_names). It's pretty straightforward. `[COMPONENT.TRANSFORM]` translates to a property name (index) of `0`, `[COMPONENT.MOTION]` to `1`, etc., as per the `COMPONENT` enum array we set up.
+
+This is so that in our component array initialisation and activation phase (repeated here),
+
+```
+// Initialise conditionally depending on each entity's given archetype.
+for (let e = 0; e < ENTITIES_COUNT; e++)
+{
+	let entityArcheTypeIndex = entitiesRawData[e].archeType;
+	let entityArcheType      = entityArcheTypes[entityArcheTypeIndex];
+	
+	for (let c of entityArcheType)
 	{
-		...
-		
-		if (hulls[e].isActive) //much better.
-		{
-			if (transforms[e].isActive)
-			{
+		let component = componentsByIndex[c];
+		component.init(component.array[e], entitiesRawData[e][c]);
+		component.array[e].isActive = true;
+	}
+}
 ```
 
-###
+...we can easily and _numerically_ index into the various aspects of our `entitiesRawData` (input) and `entityArcheTypes` (secondary input) arrays in order to accurately produce the contents of our `component.array` (output, that is, our components for the current entity `[e]`).
+
+Numeric indexing is preferable to property name indexing [in most cases](https://stackoverflow.com/questions/10639488/faster-to-access-numeric-property-by-string-or-integer), since comparisons can occur faster than `string` name based indexing. (I do not know exactly how true this remains in Javascript across different browsers in 2024, but I opt for a C-like approach in the name of efficiency and language-agnosticism, as you the reader could implement such an ECS in your language of choice.)
+
+### A change to individual component initialisation functions
+
+Above, I mentioned "more on this shortly" when talking about `component.init`, or more specifically, the `initTransform`, `initTurret` etc. concrete functions that back our generalised `component.init`.
+
+To get these `init*` functions to read in the necessary raw data, we have to change them slightly:
+
+```
+//--- Declare component initialisation functions ---//
+
+function initTransform(transform, data)
+{
+	if (data)
+	{
+		for (let prop in data)
+		{
+			transform[prop] = data[prop];
+		}
+	}
+	else
+	{
+		//nothing, leave as is
+	}
+}
+
+function initTurret(turret, data)
+{
+	if (data)
+	{
+		for (let prop in data)
+		{
+			turret[prop] = data[prop];
+		}
+	}
+	else
+	{
+		turret.angle = parseInt( lerp(TURRET_ANGLE_MIN, TURRET_ANGLE_MAX, Math.random()) );
+		turret.angleDelta = (Math.random() - 0.5) / 5; //range: -0.1 .. +0.1 radians
+		turret.reloadTime = parseInt( lerp(TURRET_RELOADTIME_MIN, TURRET_RELOADTIME_MAX, Math.random()) );
+		turret.reloadCountdown = turret.reloadTime;
+		turret.gunPower = parseInt( lerp(TURRET_GUNPOWER_MIN, TURRET_GUNPOWER_MAX, Math.random()) );
+	}
+}
+
+function initTrack(track, data)
+{
+	if (data)
+	{
+		for (let prop in data)
+		{
+			track[prop] = data[prop];
+		}
+	}
+	else
+	{
+		track.speed = parseInt( lerp(TRACK_SPEED_MIN, TRACK_SPEED_MAX, Math.random()) );
+	}
+}
+```
+
+Notice that both their function signature (arguments list) and content has changed (conditional blocks added).
+
+The upshot is that if raw data is provided in the function call, use it -- else randomly generate data within acceptable ranges.
+
+In future, I would like to abstract this logic so we don't need `if-else` blocks between every single `init*` concrete function. But as there are only three of them at present, this suffices for now. (In OOP, this change could be made using either a base `class` / virtual method, or by the use of `interfaces` or `traits`.)
 
 
+### The Null Design Pattern
+
+Finally, there is a function we use if no initialiser exists.
+
+```
+function funcNull(component, data) {} //"null pattern"
+```
+This strange goodie is known as the [null pattern](https://en.wikipedia.org/wiki/Null_object_pattern). You could also see it as an empty [stub](https://en.wikipedia.org/wiki/Method_stub). It exists when we have no initialiser or update logic to run, for a given component type. It avoids us having to do something like this:
+
+```
+if (component.init)
+{
+	component.init();
+}
+else
+{
+	//do something else, or error
+}
+```
+We avoid this because conditionals are costly, and null functions (or objects) take up very little space in CPU instruction (or data) cache, respectively. So it's cheaper to just run an empty function here than to check if a valid one exists.
+
+In future lesson, we will also use empty object literals where no prototype exists:
+
+```
+const nullPrototype = {};
+```
 
 ### Result
 
 ![part2_tiny_tanks.png](https://ucarecdn.com/c204fb62-5e6d-43b5-afc4-87980adc47f1/)
 
+As this was a pure refactoring exercise, our output has is indistinguishable from that of part 2.
+
 The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials).
 
 ## Conclusion
 
+In this lesson, we've seen how we can begin to generalise he intialisation phase of the ECS, by having it take generalised components and entity archetypes, and turn these into a running system.
 
+In so doing, our runtime code (as denoted) has become more abstract and a tad more difficult to understand, but the power of our ECS has grown enormously, such that we could already begin to see how it might be used for different games, not only Tiny Tanks. 
 
-...
+Application-specific code become more general and less cluttered, as parts of that code moved into the (denoted) initialisation section (pure data). Thus, the _density_ of the different sections of our code has changed. This change indicates a shift towards a [data driven design](#). In time, all initialisation data will come from data sources, e.g. JSON files or a database, representing either serialised savegames or data produced by game designers, either by hand or by say, a custom-built editor.
 
+In the next lesson, we will look at further differentiating our two entity archetypes, adding a third archetype, and begin to generalise the second part of our code: runtime updates.
+ 
+ 
+ 
+ 
+ 
+ 
+---OR---
 In the next lesson, we will look at pre-filtering our global entities list into sub-lists by component type. This will reduce the number of (nested) conditional branches where we perform our game logic, by moving these out into a pre-step.
 
 The performance impact of this should be evident when dealing with thousands of entities.

@@ -13,8 +13,6 @@ const GAP_BETWEEN_TANKS = canvas.width / TANKS_COUNT;
 
 const BULLET_RADIUS = 3;
 
-const HULL_HEALTH_MIN = 0;
-const HULL_HEALTH_MAX = 10;
 const TURRET_ANGLE_MIN = 0;
 const TURRET_ANGLE_MAX = 2 * Math.PI;
 const TURRET_RELOADTIME_MIN = 10;
@@ -23,7 +21,6 @@ const TURRET_GUNPOWER_MIN = 7;
 const TURRET_GUNPOWER_MAX = 20;
 const TRACK_SPEED_MIN = 1;
 const TRACK_SPEED_MAX = 5;
-
 
 //--- Declare component (proto)types ---//
 
@@ -41,14 +38,6 @@ const motionPrototype =
 	
 	dx: 0,
 	dy: 0,
-}
-
-const hullPrototype =
-{
-	isActive: false,
-	
-	isOnFire: false,
-	health: 0
 }
 
 const turretPrototype =
@@ -69,13 +58,6 @@ const trackPrototype =
 	speed: 0
 }
 
-const munitionPrototype =
-{
-	isActive: false,
-	
-	damage: 1
-}
-
 //--- Declare lerp function ---//
 
 function lerp(min, max, t)
@@ -88,8 +70,6 @@ function lerp(min, max, t)
 
 function initTransform(transform, data)
 {
-	console.log(transform, data);
-	//TODO should be generalised, even forming a base class.
 	if (data)
 	{
 		for (let prop in data)
@@ -100,22 +80,6 @@ function initTransform(transform, data)
 	else
 	{
 		//nothing, leave as is
-	}
-}
-
-function initHull(hull, data)
-{
-	if (data)
-	{
-		for (let prop in data)
-		{
-			hull[prop] = data[prop];
-		}
-	}
-	else
-	//if (!hull.hasOwnProperty("health"))
-	{
-		hull.health = parseInt( lerp(HULL_HEALTH_MIN, HULL_HEALTH_MAX, Math.random()) );
 	}
 }
 
@@ -163,36 +127,34 @@ function funcNull(component, data) {} //"null pattern"
 // This is not like typical OOP Entities / GameObjects!
 const transforms  = new Array(ENTITIES_COUNT);
 const motions     = new Array(ENTITIES_COUNT);
-const hulls       = new Array(ENTITIES_COUNT);
 const turrets     = new Array(ENTITIES_COUNT);
 const trackLefts  = new Array(ENTITIES_COUNT);
 const trackRights = new Array(ENTITIES_COUNT);
-const munitions   = new Array(ENTITIES_COUNT);
+
+//--- Components ---///
 
 const COMPONENT =
 {
 	TRANSFORM: 0,
 	MOTION: 1,
-	HULL: 2,
-	TURRET: 3,
-	TRACK_LEFT: 4,
-	TRACK_RIGHT: 5,
-	MUNITION: 6
+	TURRET: 2,
+	TRACK_LEFT: 3,
+	TRACK_RIGHT: 4,
 };
 
-//const componentsByName = {};
 const componentsByIndex =
 [
 	//in each case, we have type info and the data array.
 	//these could also be stored in 2 separate arrays.
 	{init: initTransform, update: updateTransform, proto_:transformPrototype, array: transforms},
 	{init: funcNull,      update: funcNull,        proto_:motionPrototype,    array: motions},
-	{init: initHull,      update: funcNull,        proto_:hullPrototype,      array: hulls},
 	{init: initTurret,    update: updateTurret,    proto_:turretPrototype,    array: turrets},
 	{init: initTrack,     update: funcNull,        proto_:trackPrototype,     array: trackLefts},
 	{init: initTrack,     update: funcNull,        proto_:trackPrototype,     array: trackRights},
-	{init: funcNull,      update: funcNull,        proto_:munitionPrototype,  array: munitions},
 ];
+
+
+///--- Archetypes ---///
 
 const ARCHETYPE = 
 {
@@ -203,9 +165,9 @@ const ARCHETYPE =
 
 const entityArcheTypes = 
 {
-	[ARCHETYPE.TANK  ] : [0, 1, 2, 3, 4, 5],
-	[ARCHETYPE.BULLET] : [0, 1, 6],
-
+	[ARCHETYPE.TANK  ] : [COMPONENT.TRANSFORM, COMPONENT.MOTION, COMPONENT.TURRET,
+						  COMPONENT.TRACK_LEFT, COMPONENT.TRACK_RIGHT],
+	[ARCHETYPE.BULLET] : [COMPONENT.TRANSFORM, COMPONENT.MOTION],
 };
 //TODO	we could also just populate this procedurally by range.
 //		it really doesn't matter as this represents arbitrary, loaded user or save data.
@@ -262,7 +224,6 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 
 function updateTurret(e)
 {
-	let xOld = transforms[e].x;
 	let yOld = transforms[e].y;
 	let speed = trackLefts[e].speed + trackRights[e].speed;
 	let tankTransform = transforms[e];
@@ -303,7 +264,7 @@ function updateTurret(e)
 		turret.reloadCountdown = turret.reloadTime;
 	}
 	
-	console.log("position of tank", e, "was", xOld, ",", yOld, "and is now", transforms[e], "due to the speed of its tracks.");
+	console.log("y position of tank", e, "was", yOld, "and is now", transforms[e].y, "due to the speed of its tracks.");
 	
 	//...component values are used to derive other, new component values,
 	//thereby advancing the simulation.
@@ -314,11 +275,8 @@ function updateTransform(e)
 	let transform = transforms[e];
 	let motion = motions[e];
 	
-	if (motion.isActive)
-	{
-		transform.x += motion.dx;
-		transform.y += motion.dy;
-	}
+	transform.x += motion.dx;
+	transform.y += motion.dy;
 }
 
 //Our ECS function.
@@ -397,7 +355,7 @@ function renderEntities()
 		}
 		else //it is a bullet
 		{
-			if (motions[e].isActive) //it isn't dead
+			if (transforms[e].isActive) //it isn't dead
 			{
 				context.beginPath();
 				context.arc(0,0, BULLET_RADIUS, 0, 2 * Math.PI); //turret
