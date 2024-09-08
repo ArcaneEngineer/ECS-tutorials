@@ -1,6 +1,6 @@
 # ENTITY COMPONENT SYSTEMS: Part 1
 
-What is an Entity-Component System (ECS)? What is it for?
+### What is an Entity-Component System (ECS)? What is it for?
 
 As we know, games contain _many_ moving parts. Things like player characters, animals, vehicles, buildings, treasure chests, swords, bullets, spells, traps, triggers, explosions and more. When we need a lot of these complex _entities_ -- loosely synonymous with "actors", "props" or "game objects" -- then we also need an efficient way to organise them, and to process them.
 
