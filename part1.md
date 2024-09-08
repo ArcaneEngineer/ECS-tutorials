@@ -10,7 +10,7 @@ Now imagine a single military unit in a Real Time Strategy game (RTS): an upgrad
 
 # ECS to the rescue!
 
-ECS is the solution. This architecture or _design pattern_ has become very popular since 1998 [in the design of Thief, the Dark Project](https://dev.to/ovid/the-unknown-design-pattern-1l64), and moreso in 2007 [when it was described again by the lead programmer of Tony Hawk Pro Skater](https://cowboyprogramming.com/2007/01/05/evolve-your-heirachy/). As it has grown in popularity, its implementation styles have grown diverse, leading to differing opinions on how ECS _should_ be implemented.
+ECS is the industry's preferred solution. This architecture or _design pattern_ has become very popular since 1998 [in the design of Thief, the Dark Project](https://dev.to/ovid/the-unknown-design-pattern-1l64), and since 2002 with the design of [Dungeon Siege](https://en.wikipedia.org/wiki/Dungeon_Siege). See wikipedia for a [fuller history](https://en.wikipedia.org/wiki/Entity_component_system#History). As ECS has grown in popularity, its implementation styles have grown diverse, leading to differing opinions on how ECS _should_ be implemented.
 
 One thing that is clear about entity management in general, is that standard Object-Oriented Programming (OOP) practices, which use inheritance to create entity-component detail, do not fit the bill. ECS prefers an approach based on _[composition over inheritance](https://en.wikipedia.org/wiki/Composition_over_inheritance)_. On this point, all agree.
 
