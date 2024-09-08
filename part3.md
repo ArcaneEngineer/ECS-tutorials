@@ -418,7 +418,7 @@ While initialisation code has become more obscure to understand -- this is usual
 
 In time, all initialisation data will come from data sources, e.g. JSON files or a database, representing either serialised savegames or data produced by game designers. To have our ECS _purely data-driven_ is one of our goals as we continue this series.
 
-We saw that the `componentsByIndex` holds not only the concrete data for each component type, but also a kind of _general component type information_. Archetypes, too, provide something akin to the info that the [builder pattern](http://en.wikipedia.org/wiki/Builder_pattern) needs to build its composite objects in OOP. For those who wonder how OOP was invented (i.e. how C evolved into C++), we are starting to learn how primitive type systems were written in C (or C-like) environments in the not-so-distant past.
+We saw that the `componentsByIndex` holds not only the concrete data for each component type, but also a kind of _general component type information_. Archetypes, too, provide something akin to the info that the [builder pattern](http://en.wikipedia.org/wiki/Builder_pattern) needs to build its composite objects in OOP. For those who wonder how OOP was invented (i.e. how C evolved into C++), we are starting to learn how the first primitive type systems were written in C (or C-like environments).
 
 In the next part, we'll further differentiate our two entity archetypes, add a third archetype, and generalise our game logic updates and render code.
 
