@@ -69,6 +69,13 @@ const trackPrototype =
 	speed: 0
 }
 
+const munitionPrototype =
+{
+	isActive: false,
+	
+	damage: 1
+}
+
 //--- Declare lerp function ---//
 
 function lerp(min, max, t)
@@ -79,30 +86,74 @@ function lerp(min, max, t)
 
 //--- Declare component initialisation functions ---//
 
-function initTransformTank(transform, e)
+function initTransform(transform, data)
 {
-	transform.x = parseInt((GAP_BETWEEN_TANKS * e) + GAP_BETWEEN_TANKS / 2);
+	//TODO should be generalised, even forming a base class.
+	if (data)
+	{
+		for (let prop in data)
+		{
+			transform[prop] = data[prop];
+		}
+	}
+	else
+	{
+		//nothing, leave zeroed
+	}
 }
 
-function initHull(hull)
+function initHull(hull, data)
 {
-	hull.health = parseInt( lerp(HULL_HEALTH_MIN, HULL_HEALTH_MAX, Math.random()) );
+	if (data)
+	{
+		for (let prop in data)
+		{
+			hull[prop] = data[prop];
+		}
+	}
+	else
+	//if (!hull.hasOwnProperty("health"))
+	{
+		hull.health = parseInt( lerp(HULL_HEALTH_MIN, HULL_HEALTH_MAX, Math.random()) );
+	}
 }
 
-
-function initTurret(turret)
+function initTurret(turret, data)
 {
-	turret.angle = parseInt( lerp(TURRET_ANGLE_MIN, TURRET_ANGLE_MAX, Math.random()) );
-	turret.angleDelta = (Math.random() - 0.5) / 5; //range: -0.1 .. +0.1 radians
-	turret.reloadTime = parseInt( lerp(TURRET_RELOADTIME_MIN, TURRET_RELOADTIME_MAX, Math.random()) );
-	turret.reloadCountdown = turret.reloadTime;
-	turret.gunPower = parseInt( lerp(TURRET_GUNPOWER_MIN, TURRET_GUNPOWER_MAX, Math.random()) );
+	if (data)
+	{
+		for (let prop in data)
+		{
+			turret[prop] = data[prop];
+		}
+	}
+	else
+	{
+		turret.angle = parseInt( lerp(TURRET_ANGLE_MIN, TURRET_ANGLE_MAX, Math.random()) );
+		turret.angleDelta = (Math.random() - 0.5) / 5; //range: -0.1 .. +0.1 radians
+		turret.reloadTime = parseInt( lerp(TURRET_RELOADTIME_MIN, TURRET_RELOADTIME_MAX, Math.random()) );
+		turret.reloadCountdown = turret.reloadTime;
+		turret.gunPower = parseInt( lerp(TURRET_GUNPOWER_MIN, TURRET_GUNPOWER_MAX, Math.random()) );
+	}
 }
 
-function initTrack(track)
+function initTrack(track, data)
 {
-	track.speed = parseInt( lerp(TRACK_SPEED_MIN, TRACK_SPEED_MAX, Math.random()) );
+	if (data)
+	{
+		for (let prop in data)
+		{
+			track[prop] = data[prop];
+		}
+	}
+	else
+	{
+		track.speed = parseInt( lerp(TRACK_SPEED_MIN, TRACK_SPEED_MAX, Math.random()) );
+	}
 }
+
+function funcNull(component, data) {} //"null pattern"
+
 
 //--- Set up Entities as groups of Components ---//
 	
@@ -115,37 +166,109 @@ const hulls       = new Array(ENTITIES_COUNT);
 const turrets     = new Array(ENTITIES_COUNT);
 const trackLefts  = new Array(ENTITIES_COUNT);
 const trackRights = new Array(ENTITIES_COUNT);
+const munitions   = new Array(ENTITIES_COUNT);
 
-// Populate arrays for components of all tanks.
+
+//const componentTypes
+
+//const componentsByName = {};
+const componentsByIndex =
+[
+	//in each case, we have type info and the data array.
+	//these could also be stored in 2 separate arrays.
+	{init: initTransform, update: updateTransform, proto_:transformPrototype, array: transforms},
+	{init: funcNull,      update: funcNull,        proto_:motionPrototype,    array: motions},
+	{init: initHull,      update: funcNull,        proto_:hullPrototype,      array: hulls},
+	{init: initTurret,    update: updateTurret,    proto_:turretPrototype,    array: turrets},
+	{init: initTrack,     update: funcNull,        proto_:trackPrototype,     array: trackLefts},
+	{init: initTrack,     update: funcNull,        proto_:trackPrototype,     array: trackRights},
+	{init: funcNull,      update: funcNull,        proto_:munitionPrototype,  array: munitions},
+];
+
+
+const ARCHETYPE = 
+{
+	NONE: 0,
+	TANK: 1,
+	BULLET: 2,
+};
+
+//TODO you could also just populate this procedurally by range.
+//     it really doesn't matter as this represents arbitrary, loaded user or save data.
+const entitiesArchetypesForInit =
+[
+	ARCHETYPE.TANK, ARCHETYPE.TANK, ARCHETYPE.TANK, ARCHETYPE.TANK, //tanks
+	ARCHETYPE.BULLET, ARCHETYPE.BULLET, ARCHETYPE.BULLET, ARCHETYPE.BULLET, //bullets
+	//count must match ENTITIIES_COUNT for loop below! (or stop using that const)
+];
+
+//can hold loaded or generated data for all tanks.
+//could be loaded JSON.
+const entitiesRawData = 
+[
+	//TANKS
+	{ transform: {x: 0, y: 0} },
+	{ transform: {x: 0, y: 0} },
+	{ transform: {x: 0, y: 0} },
+	{ transform: {x: 0, y: 0} },
+	
+	//BULLETS
+	{ transform: {x: 0, y: 0} },
+	{ transform: {x: 0, y: 0} },
+	{ transform: {x: 0, y: 0} },
+	{ transform: {x: 0, y: 0} },
+];
+
+//modify the tanks' x positions according to index e (spread across playfield).
+for (let e = 0; e < TANKS_COUNT; e++)
+{
+	entitiesRawData[e].transform.x = parseInt((GAP_BETWEEN_TANKS * e) + GAP_BETWEEN_TANKS / 2);
+}
+
+// Populate component data arrays unconditionally for all entities (object instances).
 for (let e = 0; e < ENTITIES_COUNT; e++)
 {
 	//define the object (structure) of each element of the entity-component table.
-	transforms [e] = structuredClone(transformPrototype);
-	motions    [e] = structuredClone(motionPrototype);
-	hulls      [e] = structuredClone(hullPrototype);
-	turrets    [e] = structuredClone(turretPrototype);
-	trackLefts [e] = structuredClone(trackPrototype);
-	trackRights[e] = structuredClone(trackPrototype);
-	
-	if (e < TANKS_COUNT) //it will be a tank
+	for (let c = 0; c < componentsByIndex.length; c++)
 	{
-		transforms[e].isActive = true;
-		initTransformTank(transforms[e], e);
+		let component = componentsByIndex[c];
+		component.array[e] = structuredClone(component.proto_);
+	}
+}
+
+// Initialise conditionally depending on each entity's given archetype.
+for (let e = 0; e < ENTITIES_COUNT; e++)
+{
+	//all entities have transforms?
+	transforms [e].isActive = true;
+	initTransform(transforms[e], entitiesRawData[e].transform);
+
+	let entityArcheType = entitiesArchetypesForInit[e];
+	
+	switch (entityArcheType) //it will be a tank
+	{
+		case ARCHETYPE.TANK:
+			
+			motions    [e].isActive = true;
+			//do not init motion here, instead calculate it from the tracks, each tick.
+			
+			hulls	   [e].isActive = true; //<---
+			initHull(hulls[e]);
+			
+			turrets    [e].isActive = true;
+			initTurret(turrets[e]);
+			
+			trackLefts [e].isActive = true;
+			initTrack(trackLefts[e]);
+			
+			trackRights[e].isActive = true;
+			initTrack(trackRights[e]);
+			
+			break;
+			
+		case ARCHETYPE.BULLET:
 		
-		motions    [e].isActive = true;
-		//do not init motion here, instead calculate it from the tracks, each tick.
-		
-		hulls	   [e].isActive = true; //<---
-		initHull(transforms[e]);
-		
-		turrets    [e].isActive = true;
-		initTurret(turrets[e]);
-		
-		trackLefts [e].isActive = true;
-		initTrack(trackLefts[e]);
-		
-		trackRights[e].isActive = true;
-		initTrack(trackRights[e]);
+			break;
 	}
 	//else it will be a bullet (later indices where TANKS_COUNT <= e < ENTITIES_COUNT)
 }
@@ -205,8 +328,11 @@ function updateTransform(e)
 	let transform = transforms[e];
 	let motion = motions[e];
 	
-	transform.x += motion.dx;
-	transform.y += motion.dy;
+	if (motion.isActive)
+	{
+		transform.x += motion.dx;
+		transform.y += motion.dy;
+	}
 }
 
 //Our ECS function.
@@ -285,7 +411,7 @@ function renderEntities()
 		}
 		else //it is a bullet
 		{
-			if (transforms[e].isActive) //it isn't dead
+			if (motions[e].isActive) //it isn't dead
 			{
 				context.beginPath();
 				context.arc(0,0, BULLET_RADIUS, 0, 2 * Math.PI); //turret
