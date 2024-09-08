@@ -2,13 +2,13 @@
 
 [In the first two parts](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md), we set up Tiny Tanks a proof-of-concept that demonstrates an Entity-Component System (ECS) with complex, (de)activatable components, and inter-component activity _within a single entity_.
 
-However, our ECS is still very tightly coupled and application-specific in numerous areas, which is less than ideal.
+However, our ECS is still very tightly coupled and application-specific, which is less than ideal.
 
 In part 3, we will _refactor_: without changing existing functionality or adding anything new, we'll begin to generalise our existing ECS.
 
 ## Technical overview
 
-Our ECS initialisation phase will become more general and less specific to our particular game, so that it might be reused for another game.
+Our ECS initialisation phase will become more general and less specific to our particular game, so that it could be reused for another game.
 
 As part of this process, we will also begin to support the idea of _entity archetypes_.
  
@@ -145,9 +145,7 @@ We debut a new array, `componentsByIndex`, which contains a `prototype` e.g. `tu
 
 I used the member name `prototype` here, apologies. This could potentially cause confusion with the various under-the-hood uses of `[[Prototype]]`, `__proto__` etc. by Javascript's type system.
 
-_However_, since this word accurately describes what we're doing, and is what was used in part 2, as well as the fact that diffing `part [n-1].js` with `part [n].js` is the best way to follow these tutorials, I have decided to keep the name as it is. You could use the term `blueprint` if you prefer, although I see a `blueprint` as more of a `class` than of an `object` prototype.
-
-Thanks for understanding.
+_However_, since this word accurately describes what we're doing, and is what was used in part 2, as well as the fact that diffing `part [n-1].js` with `part [n].js` is the best way to follow these tutorials, I have decided to keep the name as it is. You could use the term `blueprint` if you prefer, although I see a `blueprint` as more of a `class` than of an `object` prototype. Thanks for understanding.
  
 ### Generalising the initialisation loop (only)
 
@@ -210,7 +208,7 @@ You can see references to our old ([part 1](https://github.com/ArcaneEngineer/EC
 
 By indexing into this components array using `[c]` in both the population and initialisation phases (and in an upcoming part of this series, also the update phase), we can select a component by its index, without knowing any specific names of functions or arrays (unlike parts 1 & 2).
 
-This allows us to do generalised, list-style processing, and abstracts us away from any Tiny Tanks specifics, meaning we could potentially use this code in other games or simulations. Exciting?
+This allows us to do generalised, list-style processing, and abstracts us away from Tiny Tanks specifics, meaning we could potentially use this code in other games or simulations. Exciting?
 
 ### Archetypes: How they are defined
 
@@ -317,7 +315,7 @@ I prefer numeric indexing to name-based indexing, for two reasons:
 
 Above, I said "more on this shortly" when talking about `component.init`, or more specifically, the `initTransform`, `initTurret` etc. functions that back our generalised `component.init`.
 
-To get these `init*` functions to read in the necessary raw data which we pass as the second argument or parameter, we have to change them slightly:
+To get these `init*` functions to read in the necessary raw data (which we pass as the second argument / parameter), we have to change them slightly:
 
 ```
 //--- Declare component initialisation functions ---//
@@ -372,7 +370,7 @@ function initTrack(track, data)
 }
 ```
 
-...This logic was included because we need a way to initially set up the `transform.x` positions of our tanks, and not of the bullets. However, it generalises across any component and any data member (field) of that component. Definitely a net win to add it to the code, then!
+...This logic was included because we need a way to initially set up the `transform.x` positions of our tanks, and not of the bullets. However, this logic generalises across any component and any data member (field) of that component. Definitely a net win to add it to our code, then!
 
 Notice that both their function signature (arguments list) and content has changed (conditional blocks added). However, within each `else` block, the code is exactly the same as in [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md)](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md).
 
@@ -402,7 +400,7 @@ else
 ```
 We avoid this because conditionals are costly, and null functions (or objects) take up very little space in CPU instruction (or data) cache, respectively. So it's cheaper to just run an empty function here than to check if a valid one exists.
 
-In future lesson, we will also use empty object literals where no prototype exists:
+In future, we will also use empty object literals where no prototype exists:
 
 ```
 const nullPrototype = {};
