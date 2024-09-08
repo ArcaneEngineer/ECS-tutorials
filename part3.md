@@ -29,7 +29,7 @@ I have tried to keep the diff between parts 2 to 3 much clearer this time (part 
 
 ### Generalising the populate / initialise loop
 
-Let's look at the whole initialisation loop, and evaluate what it's really doing.
+Let's look at our existing initialisation loop from [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.js), and evaluate what it's doing.
 
 ```
 // Populate arrays for components of all tanks.
