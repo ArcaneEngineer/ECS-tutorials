@@ -1,7 +1,7 @@
 # ECS What-for / How-to tutorial series 
 
-A set of tutorials on how to implement an Entity Component System
-	written in C-like JavaScript (no OOP)
+How to implement an **Entity Component System (ECS)**
+	in C-like JavaScript (no OOP)
 	authored by Nick the (Arcane) Engineer and Games Developer.
 
 * Part 1 [Tutorial](part1.md) | [Source Code](part1.js) | [Demo](https://raw.githack.com/ArcaneEngineer/ECS-tutorials/main/part1.html)
