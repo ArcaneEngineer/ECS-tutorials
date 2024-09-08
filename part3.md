@@ -294,12 +294,12 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 
 I prefer numeric indexing to name-based indexing, for two reasons:
 
-- [in most cases](https://stackoverflow.com/questions/10639488/faster-to-access-numeric-property-by-string-or-integer), since it is more efficient -- comparisons can occur faster than `string` name based indexing. (I'm unsure how true this remains in 2024 across different browsers)
+- it is more efficient [in most cases](https://stackoverflow.com/questions/10639488/faster-to-access-numeric-property-by-string-or-integer) -- comparisons can occur faster than `string` name based indexing. (I'm unsure how true this remains in 2024 across different browsers)
 - Since you the reader could implement an ECS in your language of choice, it's best to opt for the most language-agnostic approach, in case you don't have string-keyed map support, which Javascript objects have (or indeed _are_) by default.
 
 ### A change to individual component initialisation functions
 
-Above, I mentioned "more on this shortly" when talking about `component.init`, or more specifically, the `initTransform`, `initTurret` etc. concrete functions that back our generalised `component.init`.
+Above, I mentioned "more on this shortly" when talking about `component.init`, or more specifically, the `initTransform`, `initTurret` etc. functions that back our generalised `component.init`.
 
 To get these `init*` functions to read in the necessary raw data, we have to change them slightly:
 
@@ -360,7 +360,7 @@ Notice that both their function signature (arguments list) and content has chang
 
 The upshot is that if raw data is provided in the function call, use it -- else randomly generate data within acceptable ranges.
 
-In future, I would like to abstract this logic so we don't need `if-else` blocks between every single `init*` concrete function. But as there are only three of them at present, this suffices for now. (In OOP, this change could be made using either a base `class` / virtual method, or by the use of `interfaces` or `traits`.)
+In future, I would like to abstract this logic so we don't need `if-else` blocks between every single `init*` concrete function (`initTransform`, `initMotion` etc.). But as there are only three of them at present, this suffices for now. (In OOP, this change could be made using either a base `class` / virtual method, or by the use of `interfaces` or `traits`.)
 
 
 ### The Null Design Pattern
