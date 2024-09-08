@@ -264,7 +264,7 @@ for (let e = 0; e < TANKS_COUNT; e++)
 
 (I added the second block (`//...and modify`) to keep `entitiesRawData` block neat and concise, rather than adding the `.x` modifications inline and making the code messy to read.)
 
-But why do we do this? Well, defining just `ARCHETYPE.TANK` and `ARCHETYPE.BULLET` for each element of the array, we avoid having to list the full set of required components these would need, each and every time.
+But why do we do this? Well, defining just `ARCHETYPE.TANK` and `ARCHETYPE.BULLET` for each element of the array, we avoid having to list the full set of required components these would need, each and every time we define a new entity.
 
 ...That's 4x for tanks, and 4x for bullets in this simple example -- but could be hundreds, thousands or tens of thousands of times in a real-world game. Even if the data is saved and loaded, archetypes can keep your saved data many times smaller than it would be otherwise, by avoiding unnecessary repitition.
 
@@ -282,7 +282,7 @@ While I assume familiarity with Javascript in these tutorials, you may not be fa
 - `{ [ARCHETYPE.BULLET] : [COMPONENT.TRANSFORM, COMPONENT.MOTION] }`
 - `{ [COMPONENT.TRANSFORM]: {x: 0, y: 0} }`
 
-If not familiar, see [ES6 computed property names](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#computed_property_names). It's pretty straightforward. `[COMPONENT.TRANSFORM]` translates to a property name (index) of `0`, `[COMPONENT.MOTION]` to `1`, etc., as per the `COMPONENT` enum array we set up.
+If not familiar, see [ES6 computed property names](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#computed_property_names). It's pretty straightforward. `[COMPONENT.TRANSFORM]` translates to a property name (index) of `[0]`, `[COMPONENT.MOTION]` to `[1]`, etc., as per the `COMPONENT` enum array we set up.
 
 ### Archetypes: How they are used
 
