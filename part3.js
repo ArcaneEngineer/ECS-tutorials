@@ -88,6 +88,7 @@ function lerp(min, max, t)
 
 function initTransform(transform, data)
 {
+	console.log(transform, data);
 	//TODO should be generalised, even forming a base class.
 	if (data)
 	{
@@ -98,7 +99,7 @@ function initTransform(transform, data)
 	}
 	else
 	{
-		//nothing, leave zeroed
+		//nothing, leave as is
 	}
 }
 
@@ -168,8 +169,16 @@ const trackLefts  = new Array(ENTITIES_COUNT);
 const trackRights = new Array(ENTITIES_COUNT);
 const munitions   = new Array(ENTITIES_COUNT);
 
-
-//const componentTypes
+const COMPONENT =
+{
+	TRANSFORM: 0,
+	MOTION: 1,
+	HULL: 2,
+	TURRET: 3,
+	TRACK_LEFT: 4,
+	TRACK_RIGHT: 5,
+	MUNITION: 6
+};
 
 //const componentsByName = {};
 const componentsByIndex =
@@ -185,7 +194,6 @@ const componentsByIndex =
 	{init: funcNull,      update: funcNull,        proto_:munitionPrototype,  array: munitions},
 ];
 
-
 const ARCHETYPE = 
 {
 	NONE: 0,
@@ -193,39 +201,39 @@ const ARCHETYPE =
 	BULLET: 2,
 };
 
-//TODO you could also just populate this procedurally by range.
-//     it really doesn't matter as this represents arbitrary, loaded user or save data.
-const entitiesArchetypesForInit =
-[
-	ARCHETYPE.TANK, ARCHETYPE.TANK, ARCHETYPE.TANK, ARCHETYPE.TANK, //tanks
-	ARCHETYPE.BULLET, ARCHETYPE.BULLET, ARCHETYPE.BULLET, ARCHETYPE.BULLET, //bullets
-	//count must match ENTITIIES_COUNT for loop below! (or stop using that const)
-];
+const entityArcheTypes = 
+{
+	[ARCHETYPE.TANK  ] : [0, 1, 2, 3, 4, 5],
+	[ARCHETYPE.BULLET] : [0, 1, 6],
 
-//can hold loaded or generated data for all tanks.
-//could be loaded JSON.
+};
+//TODO	we could also just populate this procedurally by range.
+//		it really doesn't matter as this represents arbitrary, loaded user or save data.
+//		can hold loaded or generated data for all tanks, could be loaded JSON.
 const entitiesRawData = 
 [
 	//TANKS
-	{ transform: {x: 0, y: 0} },
-	{ transform: {x: 0, y: 0} },
-	{ transform: {x: 0, y: 0} },
-	{ transform: {x: 0, y: 0} },
+	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
+	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
+	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
+	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
 	
 	//BULLETS
-	{ transform: {x: 0, y: 0} },
-	{ transform: {x: 0, y: 0} },
-	{ transform: {x: 0, y: 0} },
-	{ transform: {x: 0, y: 0} },
+	{ archeType: ARCHETYPE.BULLET, [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
+	{ archeType: ARCHETYPE.BULLET, [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
+	{ archeType: ARCHETYPE.BULLET, [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
+	{ archeType: ARCHETYPE.BULLET, [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
 ];
 
-//modify the tanks' x positions according to index e (spread across playfield).
+//...and modify the tanks' raw data x positions by index e (spread across playfield).
 for (let e = 0; e < TANKS_COUNT; e++)
 {
-	entitiesRawData[e].transform.x = parseInt((GAP_BETWEEN_TANKS * e) + GAP_BETWEEN_TANKS / 2);
+	let transform = entitiesRawData[e][COMPONENT.TRANSFORM];
+	transform.x = parseInt((GAP_BETWEEN_TANKS * e) + GAP_BETWEEN_TANKS / 2);
 }
 
 // Populate component data arrays unconditionally for all entities (object instances).
+// In C we could skip this loop, just malloc() array-of-struct correctly and be done.
 for (let e = 0; e < ENTITIES_COUNT; e++)
 {
 	//define the object (structure) of each element of the entity-component table.
@@ -239,44 +247,22 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 // Initialise conditionally depending on each entity's given archetype.
 for (let e = 0; e < ENTITIES_COUNT; e++)
 {
-	//all entities have transforms?
-	transforms [e].isActive = true;
-	initTransform(transforms[e], entitiesRawData[e].transform);
-
-	let entityArcheType = entitiesArchetypesForInit[e];
+	let entityArcheTypeIndex = entitiesRawData[e].archeType;
+	let entityArcheType      = entityArcheTypes[entityArcheTypeIndex];
 	
-	switch (entityArcheType) //it will be a tank
+	for (let c of entityArcheType)//.componentDeps)
 	{
-		case ARCHETYPE.TANK:
-			
-			motions    [e].isActive = true;
-			//do not init motion here, instead calculate it from the tracks, each tick.
-			
-			hulls	   [e].isActive = true; //<---
-			initHull(hulls[e]);
-			
-			turrets    [e].isActive = true;
-			initTurret(turrets[e]);
-			
-			trackLefts [e].isActive = true;
-			initTrack(trackLefts[e]);
-			
-			trackRights[e].isActive = true;
-			initTrack(trackRights[e]);
-			
-			break;
-			
-		case ARCHETYPE.BULLET:
-		
-			break;
+		let component = componentsByIndex[c];
+		component.init(component.array[e], entitiesRawData[e][c]);
+		component.array[e].isActive = true;
 	}
-	//else it will be a bullet (later indices where TANKS_COUNT <= e < ENTITIES_COUNT)
 }
 
 //--- Game logic ---//
 
 function updateTurret(e)
 {
+	let xOld = transforms[e].x;
 	let yOld = transforms[e].y;
 	let speed = trackLefts[e].speed + trackRights[e].speed;
 	let tankTransform = transforms[e];
@@ -317,7 +303,7 @@ function updateTurret(e)
 		turret.reloadCountdown = turret.reloadTime;
 	}
 	
-	console.log("y position of tank", e, "was", yOld, "and is now", transforms[e].y, "due to the speed of its tracks.");
+	console.log("position of tank", e, "was", xOld, ",", yOld, "and is now", transforms[e], "due to the speed of its tracks.");
 	
 	//...component values are used to derive other, new component values,
 	//thereby advancing the simulation.
