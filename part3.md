@@ -67,7 +67,7 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 }
 ```
 
-There are many application specifics here, most of which we'd only care about in the context of Tiny Tanks.
+There are many application specifics here, which we'd only care about in the context of Tiny Tanks.
 
 We can see clear sections in the above code, where different types of tasks are being handled. The pseudocode we can derive from this is:
 
