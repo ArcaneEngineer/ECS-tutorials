@@ -175,10 +175,10 @@ const entityArcheTypes =
 const entitiesRawData = 
 [
 	//TANKS
-	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
-	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
-	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
-	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
+	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 64,  y: 0} },
+	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 192, y: 0} },
+	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 320, y: 0} },
+	{ archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 448, y: 0} },
 	
 	//BULLETS
 	{ archeType: ARCHETYPE.BULLET, [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
@@ -186,13 +186,6 @@ const entitiesRawData =
 	{ archeType: ARCHETYPE.BULLET, [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
 	{ archeType: ARCHETYPE.BULLET, [COMPONENT.TRANSFORM]: {x: 0, y: 0} },
 ];
-
-//...and modify the tanks' raw data x positions by index e (spread across playfield).
-for (let e = 0; e < TANKS_COUNT; e++)
-{
-	let transform = entitiesRawData[e][COMPONENT.TRANSFORM];
-	transform.x = parseInt((GAP_BETWEEN_TANKS * e) + GAP_BETWEEN_TANKS / 2);
-}
 
 // Populate component data arrays unconditionally for all entities (object instances).
 // In C we could skip this loop, just malloc() array-of-struct correctly and be done.
