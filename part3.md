@@ -77,7 +77,6 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 		initialise every such entity
 	
 		set active every such entity
-	
 	}
 	else if this counts as a bullet entity
 	{
@@ -114,7 +113,7 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 
 ### Generalising the populate loop
 
-Right. From that pseudocode, let's write the actual population code, which is way more concise:
+Right. From that pseudocode, let's write the actual population code, which is now way more concise:
 
 ```
 // Populate component data arrays unconditionally for all entities (object instances).
@@ -136,7 +135,11 @@ We debut a new array, `componentsByIndex`, which contains a `prototype` e.g. `tu
 
 `componentsByIndex` is central to how we will generalise our ECS now and in the future, so pay close attention to its structure (which we'll describe shortly) and its usage in the sections below.
 
-(For Javascript afficionados, I apologise for using the member name `prototype` here. You will know that this can cause confusion with the various with under-the-hood use of `[[Prototype]]`, `__proto__` etc. by Javascript. _However_, since this word accurately describes what we're doing, and is what was used in part 2, as well as the fact that diffing `part [n-1].js` with `part [n].js` is the best way to follow these tutorials, I have decided to keep the name as it is. You could use the term `blueprint` if you prefer, although I see this as more of a `class` than of an `object` prototype. Thanks for understanding.)
+### Interlude for Javascript afficionados
+
+I apologise for using the member name `prototype` here. You will know that this can cause confusion with the various with under-the-hood use of `[[Prototype]]`, `__proto__` etc. by Javascript. _However_, since this word accurately describes what we're doing, and is what was used in part 2, as well as the fact that diffing `part [n-1].js` with `part [n].js` is the best way to follow these tutorials, I have decided to keep the name as it is. You could use the term `blueprint` if you prefer, although I see this as more of a `class` than of an `object` prototype.
+
+Thanks for understanding.
  
 ### Generalising the initialise loop
 
@@ -260,7 +263,8 @@ If we need to in future, we can set up more raw data in each element of `entitie
 While I assume familiarity with Javascript in these tutorials, you may not be familiar with this syntax:
 - `{ [ARCHETYPE.BULLET] : [COMPONENT.TRANSFORM, COMPONENT.MOTION] }`
 - `{ [COMPONENT.TRANSFORM]: {x: 0, y: 0} }`
-If not, see [ES6 computed property names](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#computed_property_names). It's pretty straightforward. `[COMPONENT.TRANSFORM]` translates to a property name (index) of `0`, `[COMPONENT.MOTION]` to `1`, etc., as per the `COMPONENT` enum array we set up.
+
+If not familiar, see [ES6 computed property names](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#computed_property_names). It's pretty straightforward. `[COMPONENT.TRANSFORM]` translates to a property name (index) of `0`, `[COMPONENT.MOTION]` to `1`, etc., as per the `COMPONENT` enum array we set up.
 
 This is so that in our component array initialisation and activation phase (repeated here),
 
@@ -360,7 +364,7 @@ function funcNull(component, data) {} //"null pattern"
 This strange goodie is known as the [null pattern](https://en.wikipedia.org/wiki/Null_object_pattern). You could also see it as an empty [stub](https://en.wikipedia.org/wiki/Method_stub). It exists when we have no initialiser or update logic to run, for a given component type. It avoids us having to do something like this:
 
 ```
-if (component.init)
+if (component.init != undefined)
 {
 	component.init();
 }
@@ -389,21 +393,13 @@ The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tu
 
 ## Conclusion
 
-In this lesson, we've seen how we can begin to generalise he intialisation phase of the ECS, by having it take generalised components and entity archetypes, and turn these into a running system. The power of our ECS has grown enormously, such that we could already begin to see how it might be used for different games, not only Tiny Tanks. 
+In this lesson, we've seen how we can begin to generalise he intialisation phase of the ECS, by having it take generalised components and entity archetypes, and turn these into a running system.
 
-In so doing, our runtime code (as denoted) has become more abstract and a tad more difficult to understand, as parts of that code moved into the (denoted) initialisation section (pure data). Thus, the _density_ of the different sections of our code has changed, which indicates a shift towards a [data driven design](#). 
+While things have definitely become more difficult to understand -- this is usually the curse of [abstraction](https://en.wikipedia.org/wiki/Abstraction_(computer_science)) -- the power of our ECS has also grown enormously, such that we could already begin to see how it might be used for different games, and an endless array of different component types.
+
+In so doing, our runtime code has become more abstract and a tad more difficult to understand, as parts of that code moved into the initialisation section as (soon to be) pure data. Thus, the _density_ of the different sections of our code has changed, which indicates a shift towards a [data driven design](#). 
 
 In time, all initialisation data will come from data sources, e.g. JSON files or a database, representing either serialised savegames or data produced by game designers, either by hand or by say, a custom-built editor. That is one of our medium-terms goals as we continue this series.
 
 In the next lesson, we will look at further differentiating our two entity archetypes, adding a third archetype, and begin to generalise the second part of our code: runtime updates.
- 
- 
- 
- 
- 
- 
----OR---
-In the next lesson, we will look at pre-filtering our global entities list into sub-lists by component type. This will reduce the number of (nested) conditional branches where we perform our game logic, by moving these out into a pre-step.
-
-The performance impact of this should be evident when dealing with thousands of entities.
 
