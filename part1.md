@@ -8,7 +8,7 @@ Imagine a treasure chest that can hold treasure, but can also attack by biting t
 
 Now imagine a single military unit in a Real Time Strategy game (RTS): an upgradeable spearman, or a complex jet fighter. There can be thousands of each of these, each instance of which could contain tens or even hundreds of behaviours, which we must both add and maintain easily. Furthermore, interactions between one entity's many components can be complex indeed. Tall order, right?
 
-# ECS to the rescue!
+### ECS to the rescue!
 
 ECS is the industry's preferred solution. This architecture or _design pattern_ has become very popular since 1998 [in the design of Thief, the Dark Project](https://dev.to/ovid/the-unknown-design-pattern-1l64), and since 2002 with the design of [Dungeon Siege](https://en.wikipedia.org/wiki/Dungeon_Siege). See wikipedia for a [fuller history](https://en.wikipedia.org/wiki/Entity_component_system#History). As ECS has grown in popularity, its implementation styles have grown diverse, leading to differing opinions on how ECS _should_ be implemented.
 
@@ -18,7 +18,7 @@ There are many points which are _not_ agreed upon. In this series, I strive to a
 
 In these articles, I aim to answer a frequent question: _How_ do we build a simple ECS?
 
-# A small technical outline
+## Technical Overview
 
 What we need first is a way to create lists of _entities_ (game characters or objects). Entities' existence is dependent on the state of its _components_, where each of these components is optionally active.
 
@@ -27,11 +27,11 @@ Each entity (slot) exists as some subset of the superset of all possible compone
 This use of [composition over inheritance](https://en.wikipedia.org/wiki/Composition_over_inheritance) offers a highly configurable system, in a way that deriving base classes via OOP inheritance **cannot** easily offer (particularly without multiple inheritance).
 
 
-# Tiny Tanks: A Trivial Example
+## Tiny Tanks: Writing the Code
 
 If we imagine a simple tanks game, where tanks can lose bits and pieces and thereby fail to drive and shoot, we see how this could have been done with arrays, functions, and _no OOP_. We'll later evolve this contrived example into something more playable.
 
-## Data initialisation
+### Data initialisation
 
 Let's get some data ready, representing some _entities as the sum of their components_:
 
@@ -73,7 +73,7 @@ Running just this code, you should see similar initialisation taking place in th
 
 As you see, each component (except the `turret`) will have some numeric value associated with it. Components will become more complex than just a single value, later on in this series.
 
-## Game Logic
+### Game Logic
 
 Now... How do we process these entities-represented-as-sets-of-components?
 
@@ -139,7 +139,7 @@ As you press spacebar repeatedly, you should see messages appearing in your brow
 
 We've confirmed that our tanks' positions are updating, so let's draw them, and see them moving!
 
-## Drawing the tanks
+### Drawing the tanks
 
 ```
 //--- Draw / Render logic ---//
@@ -213,7 +213,7 @@ renderAllTanks(); //pre-draw, for when we load the HTML page.
 document.addEventListener('keyup', event => { if (event.code === 'Space') updateGameLogic(); })
 ```
 
-## Result
+### Result
 
 Hitting spacebar repeatedly will have your tanks racing down the screen, some faster than others!
 
@@ -221,7 +221,7 @@ Hitting spacebar repeatedly will have your tanks racing down the screen, some fa
 
 The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials).
 
-# Conclusion
+## Conclusion
 
 The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials).
 
