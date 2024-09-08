@@ -372,9 +372,9 @@ function initTrack(track, data)
 
 ...This logic was included because we need a way to initially set up the `transform.x` positions of our tanks, and not of the bullets. However, this logic generalises across any component and any data member (field) of that component. Definitely a net win to add it to our code, then!
 
-Notice that both their function signature (arguments list) and content has changed (conditional blocks added). However, within each `else` block, the code is exactly the same as in [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md)](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md).
+Notice that both their function signature (arguments list) and content has changed (conditional blocks added). However, within each `else` block, the code is exactly the same as in [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.js).
 
-The upshot is that if raw data is provided in the function call, we use it -- else we randomly generate data within acceptable ranges.
+The upshot? If raw data is provided in the function call, we use it -- else we randomly generate data within acceptable ranges.
 
 In future, I would like to abstract this logic so we don't need `if-else` blocks between every single `init*` concrete function (`initTransform`, `initMotion` etc.). But as there are only three of them at present, this suffices for now. (In OOP, this change could be made using either a base `class` / virtual method, or by the use of `interfaces` or `traits`.)
 
@@ -386,7 +386,7 @@ Finally, there is a special function which we use if no initialiser or updater f
 ```
 function funcNull(component, data) {} //"null pattern"
 ```
-This strange goodie is known as the [null pattern](https://en.wikipedia.org/wiki/Null_object_pattern). You could also see it as an empty [stub](https://en.wikipedia.org/wiki/Method_stub). It exists when we have no initialiser or update logic to run, for a given component type. It avoids us having to do something like this:
+This strange function a form of the [null design pattern](https://en.wikipedia.org/wiki/Null_object_pattern). You could also see it as an empty [stub](https://en.wikipedia.org/wiki/Method_stub). It exists for when we have no initialiser or update logic to run, for a given component type. It avoids us having to do something like this:
 
 ```
 if (component.init != undefined)
@@ -398,7 +398,7 @@ else
 	//do something else, or error
 }
 ```
-We avoid this because conditionals are costly, and null functions (or objects) take up very little space in CPU instruction (or data) cache, respectively. So it's cheaper to just run an empty function here than to check if a valid one exists.
+We avoid this `if` block because branching conditionals like this are costly, and null functions (or objects) take up very little space in CPU instruction (or data) cache, respectively. So it's cheaper to just run an empty function here, than to always check if a valid one exists for that component. And remember, for updates at least, this can happen may times a second (20, 30, 60 FPS are common logic refresh rates).
 
 In future, we will also use empty object literals where no prototype exists:
 
