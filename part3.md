@@ -111,7 +111,7 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 }
 ```
 
-### Generalising the populate loop
+### Generalising the population loop (only)
 
 Right. From that pseudocode, let's write the actual population code, which is now way more concise:
 
@@ -135,15 +135,15 @@ We debut a new array, `componentsByIndex`, which contains a `prototype` e.g. `tu
 
 `componentsByIndex` is central to how we will generalise our ECS now and in the future, so pay close attention to its structure (which we'll describe shortly) and its usage in the sections below.
 
-### Interlude for Javascript afficionados
+### A brief interlude for Javascript afficionados
 
-I apologise for using the member name `prototype` here. You will know that this can cause confusion with the various under-the-hood uses of `[[Prototype]]`, `__proto__` etc. by Javascript.
+I apologise for using the member name `prototype` here. This could potentially cause confusion with the various under-the-hood uses of `[[Prototype]]`, `__proto__` etc. by Javascript's type system.
 
-_However_, since this word accurately describes what we're doing, and is what was used in part 2, as well as the fact that diffing `part [n-1].js` with `part [n].js` is the best way to follow these tutorials, I have decided to keep the name as it is. You could use the term `blueprint` if you prefer, although I see this as more of a `class` than of an `object` prototype.
+_However_, since this word accurately describes what we're doing, and is what was used in part 2, as well as the fact that diffing `part [n-1].js` with `part [n].js` is the best way to follow these tutorials, I have decided to keep the name as it is. You could use the term `blueprint` if you prefer, although I see a `blueprint` as more of a `class` than of an `object` prototype.
 
 Thanks for understanding.
  
-### Generalising the initialise loop
+### Generalising the initialisation loop (only)
 
 The initialisation section from [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md) was quite tank-specific (as opposed to bullet-specific), now it generalises to:
 
@@ -204,7 +204,11 @@ You can see references to our old ([part 1](https://github.com/ArcaneEngineer/EC
 
 By indexing into this components array using `[c]` in both the population and initialisation phases (and in an upcoming part of this series, the update phase), we can select a component by its (archetype) index, without knowing any specific names of functions or arrays. This allows us to do generalised, list-style processing, and abstracts us away from any Tiny Tanks specifics, meaning we could potentially use this code in other games or simulations.
 
-We just mentioned archetype indices. So let's review the archetype arrays, which reference into the `COMPONENT` enum array we've just looked at:
+### Archetypes: How they are defined and used
+
+We just mentioned archetype indices. So let's review them in full.
+
+The archetype arrays, which reference into the `COMPONENT` enum array we've just looked at, are simple:
 
 ```
 ///--- Archetypes ---///
@@ -224,7 +228,7 @@ const entityArcheTypes =
 };
 ```
 
-The `entityArcheTypes` clearly defines what we mean when we say `TANK` or `BULLET`, that is, of what components each of these entity archetypes is comprised.
+`entityArcheTypes` clearly define what we mean when we say `TANK` or `BULLET`, that is, of what components each of these entity archetypes is comprised.
 
 The `ARCHETYPE` enum array defines archetypes by name, pointing to the index in the second array. These archetypes are used in some custom code at the end of our initialisation phase:
 
@@ -260,15 +264,15 @@ If we need to in future, we can set up more raw data in each element of `entitie
 { archeType: ARCHETYPE.TANK,   [COMPONENT.TRANSFORM]: {x: 0, y: 0}, [COMPONENT.MOTION]: {dx: 5, dy: 10}, ... },
 ```
 
-...Such data will then be auto-parsed into actual component data by `component.init`, and used during runtime updates, assuming it uses exactly the same structure as the component prototypes. More on this shortly.
+...Such data will then be auto-parsed into actual component data by `component.init`, and used during runtime updates, assuming it has _exactly_ the same structure as the component prototypes. More on this shortly. This is a potential cause of runtime errors that we should address in future.
 
-While I assume familiarity with Javascript in these tutorials, you may not be familiar with this syntax:
+While I assume familiarity with Javascript in these tutorials, you may not be familiar with this exact syntax:
 - `{ [ARCHETYPE.BULLET] : [COMPONENT.TRANSFORM, COMPONENT.MOTION] }`
 - `{ [COMPONENT.TRANSFORM]: {x: 0, y: 0} }`
 
 If not familiar, see [ES6 computed property names](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#computed_property_names). It's pretty straightforward. `[COMPONENT.TRANSFORM]` translates to a property name (index) of `0`, `[COMPONENT.MOTION]` to `1`, etc., as per the `COMPONENT` enum array we set up.
 
-This is so that in our component array initialisation and activation phase (repeated here),
+We have set archetypes up this way (using only numeric indices and no named indices) for good reason: In our component array initialisation and activation phase which we looked at earlier (repeated here),
 
 ```
 // Initialise conditionally depending on each entity's given archetype.
@@ -288,7 +292,10 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 
 ...we can easily and _numerically_ index into the various aspects of our `entitiesRawData` (input) and `entityArcheTypes` (secondary input) arrays in order to accurately produce the contents of our `component.array` (output, that is, our components for the current entity `[e]`).
 
-I prefer numeric indexing to name-based indexing, as [in most cases](https://stackoverflow.com/questions/10639488/faster-to-access-numeric-property-by-string-or-integer), since comparisons can occur faster than `string` name based indexing. (I'm unsure how true this remains in 2024 across different browsers, but as you the reader could implement such an ECS in your language of choice, it's best to opt for the most language-agnostic approach, in case you don't have string-keyed map support.)
+I prefer numeric indexing to name-based indexing, for two reasons:
+
+- [in most cases](https://stackoverflow.com/questions/10639488/faster-to-access-numeric-property-by-string-or-integer), since it is more efficient -- comparisons can occur faster than `string` name based indexing. (I'm unsure how true this remains in 2024 across different browsers)
+- Since you the reader could implement an ECS in your language of choice, it's best to opt for the most language-agnostic approach, in case you don't have string-keyed map support, which Javascript objects have (or indeed _are_) by default.
 
 ### A change to individual component initialisation functions
 
