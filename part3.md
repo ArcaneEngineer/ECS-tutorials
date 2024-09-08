@@ -418,7 +418,7 @@ The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tu
 
 ## Conclusion
 
-In this lesson, we've seen how to generalise the intialisation phase of our ECS, by having it take generalised components and entity archetypes, and (almost magically) turn these into a running system.
+We've seen how to generalise the intialisation phase of our ECS, by having it take generalised components and entity archetypes, and (almost magically) turn these into a running system.
 
 While initialisation code has become more obscure to understand -- this is usually the curse of [abstraction](https://en.wikipedia.org/wiki/Abstraction_(computer_science)) -- the power of our ECS has also grown enormously, such that we could already begin to see how it might be used for different games, and an endless array of different entity and component types.
 
