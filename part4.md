@@ -24,7 +24,12 @@ Download the project from [github](https://github.com/ArcaneEngineer/ECS-tutoria
 We'll need a couple of new components, one for the tank, and one for the bullet. Actually, one has been talked about in the past, but has been missing for a while: the tank's hull.
 
 ```
-HULL
+const hullPrototype =
+{
+	isActive: false,
+	
+	health: 0
+}
 ```
 
 This is fairly straightforward; once you see how it is used, it should make complete sense.
@@ -32,7 +37,13 @@ This is fairly straightforward; once you see how it is used, it should make comp
 Next, we need a way to denote how much damage a bullet can do, and of what type the charge is (incendiary or armour-penetrating). This will help with our game logic when a bullet hits.
 
 ```
-CHARGE/PAYLOAD
+const payloadPrototype =
+{
+	isActive: false,
+	
+	damage: 0
+}
+
 ```
 
 We'll add these `prototypes` to the existing entries in the `entityArcheTypes` array:
