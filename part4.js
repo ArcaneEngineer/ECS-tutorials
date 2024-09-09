@@ -383,7 +383,7 @@ function updateGameLogic()
 	
 	processComponents(); //call our ECS to process everything.
 	renderEntities();
-	console.log(transformPrototype);
+	
 	turn++;
 }
 
