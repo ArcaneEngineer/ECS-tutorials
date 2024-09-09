@@ -227,6 +227,6 @@ The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tu
 
 So, can we call this an ECS? Not even close. Really, the only ECS-like thing about this stage is our separated arrays of components indexed by a common entity index. 
 
-These arrays represent a superset of components, that is, all possible components for a given game design. Of that superset, each entity uses (has active) only some subset, thereby defining what that entity is and what it's capable of. Think of it like a switchboard. An entity is no more than an index into multiple component arrays.
+These arrays represent a superset of components, that is, all possible components for a given game design. Of that superset, each entity uses (has active) only some subset, thereby defining what that entity is and what it's capable of. Think of it like a switchboard.
 
 In the next article, we'll look at this _activatability_ of each entity's components.
