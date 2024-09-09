@@ -35,9 +35,33 @@ Next, we need a way to denote how much damage a bullet can do, and of what type 
 CHARGE/PAYLOAD
 ```
 
-We'll add these `prototypes` to the `entityArcheTypes` array:
+We'll add these `prototypes` to the existing entries in the `entityArcheTypes` array:
 
 ```
+const entityArcheTypes = 
+{
+	[ARCHETYPE.TANK  ] : [COMPONENT.TRANSFORM, COMPONENT.MOTION, COMPONENT.TURRET,
+						  COMPONENT.TRACK_LEFT, COMPONENT.TRACK_RIGHT, 
+						  COMPONENT.HULL], // <-- added
+	[ARCHETYPE.BULLET] : [COMPONENT.TRANSFORM, COMPONENT.MOTION, 
+						  COMPONENT.PAYLOAD], // <-- added
+};
+```
+
+and as new entries to the `componentsByIndex` array:
+
+```
+const componentsByIndex =
+[
+	//in each case, we have type info and the data array.
+	//these could also be stored in 2 separate arrays.
+	
+	...
+	
+	{init: funcNull,      update: funcNull,        prototype:hullPrototype,      array: hulls},
+	{init: funcNull,      update: funcNull,        prototype:payloadPrototype,   array: payloads},
+];
+
 ```
 
 Now these are ready for use in our update and rendering loops.
@@ -72,7 +96,7 @@ function processComponents()
 
 ```
 
-It's still rather specific to Tiny Tanks. Let's change that. 
+This code is still rather specific to Tiny Tanks. Let's change that. 
 
 If we ignore the `if` statements for simplicity, all we're really doing is
 
@@ -89,7 +113,7 @@ function processComponents()
 }
 ```
 
-That could work, but it's better if we do this:
+OK, but it's better if we do this:
 
 ```
 function processComponents() 
@@ -135,7 +159,7 @@ All entities that can shoot
 .
 ```
 
-So we now have phased processing, and that's precisely what we need in a game. A defined order in which things occur makes reasoning about the simulation much simpler.
+So we now have phased processing, and that's precisely what we need in a game engine: A defined order in which things occur makes reasoning about the simulation much simpler.
 
 ### System Dependencies 1: What they are
 
