@@ -215,13 +215,14 @@ for (let e = 0; e < ENTITIES_COUNT; e++)
 
 //--- Game logic ---//
 
-function updateTurret(e)
+function updateMotionFromTracks(e)
 {
-	let yOld = transforms[e].y;
-	let speed = trackLefts[e].speed + trackRights[e].speed;
-	let tankTransform = transforms[e];
-	tankTransform.y += speed;
 	let tankMotion = motions[e];
+	tankMotion.dy = trackLefts[e].speed + trackRights[e].speed;
+}
+
+function updateTurret(e)
+{	
 	let turret = turrets[e];
 	
 	turret.angle += turret.angleDelta;
@@ -231,8 +232,12 @@ function updateTurret(e)
 	//shoot if we can
 	if (turret.reloadCountdown == 0)
 	{
+		let tankTransform = transforms[e];
+		let tankMotion = motions[e];
+		
 		//spawn new bullet
 		console.log(e, 'says bang!');
+		
 		let bulletTransform = transforms[TANKS_COUNT+e];
 		let bulletMotion    = motions   [TANKS_COUNT+e];
 		bulletTransform.x = tankTransform.x;
@@ -256,11 +261,6 @@ function updateTurret(e)
 		
 		turret.reloadCountdown = turret.reloadTime;
 	}
-	
-	console.log("y position of tank", e, "was", yOld, "and is now", transforms[e].y, "due to the speed of its tracks.");
-	
-	//...component values are used to derive other, new component values,
-	//thereby advancing the simulation.
 }
 
 function updateTransform(e)
@@ -272,27 +272,38 @@ function updateTransform(e)
 	transform.y += motion.dy;
 }
 
+//Systems are listed in the order in which they will run.
+const systems = 
+[
+	{update: updateMotionFromTracks, componentDependencies: [COMPONENT.MOTION, COMPONENT.TRACK_LEFT, COMPONENT.TRACK_RIGHT]},
+	{update: updateTransform, componentDependencies: [COMPONENT.TRANSFORM, COMPONENT.MOTION]},
+	{update: updateTurret   , componentDependencies: [COMPONENT.TRANSFORM, COMPONENT.MOTION, COMPONENT.TURRET]},
+	//{update: renderTank     , componentDependencies: [COMPONENT.TRANSFORM, COMPONENT.TURRET]},
+];
+
+function systemDependenciesMetByEntity(system, e)
+{
+	let depsMet = true; //assume true until proven false
+	for (let c of system.componentDependencies)
+	{
+		depsMet = depsMet && componentsByIndex[c].array[e].isActive;
+	}
+	return depsMet;
+}
+
 //Our ECS function.
 function processComponents() 
 {
-    //process each entity in our game
-    for (let e = 0; e < ENTITIES_COUNT; e++)
-    {
-		//any moving entity -- tank or bullet.
-		if (transforms[e].isActive)
+	for (let system of systems)
+	{
+		for (let e = 0; e < ENTITIES_COUNT; e++)
 		{
-			if (motions[e].isActive)
+			if (systemDependenciesMetByEntity(system, e))
 			{
-				updateTransform(e);
+				system.update(e);
 			}
-			//else it is a non-moving entity.
 		}
-		
-		if (turrets[e].isActive)
-		{
-			updateTurret(e);
-		}
-    }
+	}
 }
 
 //--- Draw / Render logic ---//

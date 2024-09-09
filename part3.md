@@ -198,11 +198,11 @@ const componentsByIndex =
 [
 	//in each case, we have type info and the data array.
 	//these could also be stored in 2 separate arrays.
-	{init: initTransform, update: updateTransform, prototype:transformPrototype, array: transforms},
-	{init: funcNull,      update: funcNull,        prototype:motionPrototype,    array: motions},
-	{init: initTurret,    update: updateTurret,    prototype:turretPrototype,    array: turrets},
-	{init: initTrack,     update: funcNull,        prototype:trackPrototype,     array: trackLefts},
-	{init: initTrack,     update: funcNull,        prototype:trackPrototype,     array: trackRights},
+	{init: initTransform, prototype: transformPrototype, array: transforms},
+	{init: funcNull,      prototype: motionPrototype,    array: motions},
+	{init: initTurret,    prototype: turretPrototype,    array: turrets},
+	{init: initTrack,     prototype: trackPrototype,     array: trackLefts},
+	{init: initTrack,     prototype: trackPrototype,     array: trackRights},
 ];
 ```
 
@@ -408,7 +408,7 @@ But that will be for a future part of this series!
 
 As this was a pure refactoring exercise, our output is indistinguishable from that of [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md).
 
-The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials/part3.js).
+The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.js).
 
 ## Conclusion
 
