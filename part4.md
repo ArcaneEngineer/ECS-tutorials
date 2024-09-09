@@ -312,4 +312,4 @@ We've seen how to generalise our whole ECS, from initialisation through to game 
 
 It's worth noting that there are two types of dependencies in our ECS: System dependencies are _not the same_ as entity archetype dependencies, even though they both talk about components. Archetypes just say, "an ideal tank consists of a transform, a motion, a turret, two tracks, and a hull, so we'll initialise it like that". Whereas systems say, "I have some work to do, and I need to know that this entity -- regardless of its original archetype, and in its present state, whatever that may be -- still has the capabilities to do this work".
 
-I hope you enjoyed this part. In the next part, we will add some new components, and generalise our rendering system.
+In the next part, we will add some new components, and generalise our rendering system.
