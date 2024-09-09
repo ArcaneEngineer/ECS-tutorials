@@ -78,6 +78,21 @@ If we ignore the `if` statements for simplicity, all we're really doing is
 
 ```
 function processComponents() 
+{	
+	for (let e = 0; e < ENTITIES_COUNT; e++)
+	{
+		for (let update of updaters)
+		{
+			update(e);
+		}
+	}
+}
+```
+
+That could work, but it's better if we do this:
+
+```
+function processComponents() 
 {
 	for (let update of updaters)
 	{
@@ -89,7 +104,7 @@ function processComponents()
 }
 ```
 
-Pay careful attention to the order of loops: we no longer loop primarily by entity `e`; instead we now process primarily by `updaters`. In the original version, every time we ticked the simulation over (pressed spacebar) we processed as follows:
+Did you notice what changed? The loops. We no longer loop primarily by entity `e`; instead we now process primarily by `updaters`. In the original version, every time we ticked the simulation over (pressed spacebar) we processed as follows:
 
 ```
 IF TANK   OR IF BULLET
@@ -102,7 +117,9 @@ entity[1]    entity[1]
 entity[2]    entity[2]
 -move        -move
 -shoot
-...
+.
+.
+.
 
 ```
 
@@ -113,17 +130,20 @@ All entities that can move
 -move:  [0], [1], [2], [3] etc.
 All entities that can shoot
 -shoot: [0], [1], [2], [3] etc.
+.
+.
+.
 ```
 
 So we now have phased processing, and that's precisely what we need in a game. A defined order in which things occur makes reasoning about the simulation much simpler.
 
 ### System Dependencies 1: What they are
 
-But we've skipped something very important. Remember those `if` blocks we conveniently ignored? In part 3's `processComponents()`, we were checking `.isActive` on numerous components -- for our tanks (1st `if` block), then for our bullets (2nd `if` block).
+But we've skipped something very important. Remember those `if`s we just conveniently ignored? In part 3's `processComponents()`, we were checking `.isActive` on numerous components -- for our tanks (1st `if` block), then for our bullets (2nd `if` block).
 
 Why do we do need those `if`s?
 
-_It is because we need to know that the types of components used in each `update()`, are present  / active for the entity `[e]` which we're currently looking at._ They represent _logic dependencies_. For example,
+_It is because we need to know that the types of components used in each `update()`, are present  / active for the entity `[e]`._ These `if`s speak to _logic dependencies_. For example,
 
 ```
 function updateTransform(e)
@@ -138,7 +158,7 @@ function updateTransform(e)
 
 This updater function needs at least to have a `transform` and a `motion` component. If we found an entity that had an active `transform`, but an inactive `motion`, then this logic could not work. For example, a tree just sits at a position, but doesn't move. By not giving trees an active `motion` component, we are saying "trees can't move".
 
-Assuming trees existed in our game, how could we run `updateTransform` for bullets but not for trees?
+Assuming trees existed in our game, how could we run `updateTransform` (literally, _move_) for bullets but not for trees?
 
 Well.. we'd need to check our component dependencies. That is, for each _system_ we try to run, what components does it require to do its work? Does this entity `[e]` have those components active?
 
