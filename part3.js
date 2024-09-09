@@ -146,11 +146,11 @@ const componentsByIndex =
 [
 	//in each case, we have type info and the data array.
 	//these could also be stored in 2 separate arrays.
-	{init: initTransform, update: updateTransform, prototype:transformPrototype, array: transforms},
-	{init: funcNull,      update: funcNull,        prototype:motionPrototype,    array: motions},
-	{init: initTurret,    update: updateTurret,    prototype:turretPrototype,    array: turrets},
-	{init: initTrack,     update: funcNull,        prototype:trackPrototype,     array: trackLefts},
-	{init: initTrack,     update: funcNull,        prototype:trackPrototype,     array: trackRights},
+	{init: initTransform, prototype: transformPrototype, array: transforms},
+	{init: funcNull,      prototype: motionPrototype,    array: motions},
+	{init: initTurret,    prototype: turretPrototype,    array: turrets},
+	{init: initTrack,     prototype: trackPrototype,     array: trackLefts},
+	{init: initTrack,     prototype: trackPrototype,     array: trackRights},
 ];
 
 
