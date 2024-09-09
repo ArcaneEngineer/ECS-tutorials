@@ -8,7 +8,7 @@ In terms of game logic updates, our ECS is still tightly coupled and application
 
 ## Technical overview
 
-We will continue to use and update our specialised `componentsByIndex` concrete data and type-information array, and type information provided by our `entityArcheTypes` array.
+We will continue to use  our specialised `componentsByIndex` concrete data and type-information array to generalise the `update` system.
 
 We will also begin the use of _systems_. These are, in essence, the `update*` functions we have been using so far. However, they are more constrained in the way they operate, and need to satisfy _system dependencies_ in terms of components, in order to work. More on this shortly.
  
