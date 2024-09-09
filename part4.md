@@ -120,7 +120,7 @@ But we've skipped something very important. Remember those `if`s we just conveni
 
 Why do we do need those `if`s?
 
-_It is because we need to know that the types of components used in each `update()`, are present  / active for the entity `[e]`._ These `if`s speak to _logic dependencies_. For example,
+_It is because we need to know that the types of components used in each `update()`, are present  / active for the entity `[e]`._ These `if`s speak of _data dependencies_. For example,
 
 ```
 function updateTransform(e)
