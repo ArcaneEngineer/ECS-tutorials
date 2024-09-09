@@ -58,20 +58,6 @@ const trackPrototype =
 	speed: 0
 }
 
-const hullPrototype =
-{
-	isActive: false,
-	
-	health: 0
-}
-
-const payloadPrototype =
-{
-	isActive: false,
-	
-	damage: 0
-}
-
 //--- Declare lerp function ---//
 
 function lerp(min, max, t)
@@ -144,8 +130,6 @@ const motions     = new Array(ENTITIES_COUNT);
 const turrets     = new Array(ENTITIES_COUNT);
 const trackLefts  = new Array(ENTITIES_COUNT);
 const trackRights = new Array(ENTITIES_COUNT);
-const hulls       = new Array(ENTITIES_COUNT);
-const payloads    = new Array(ENTITIES_COUNT);
 
 //--- Components ---///
 
@@ -156,8 +140,6 @@ const COMPONENT =
 	TURRET: 2,
 	TRACK_LEFT: 3,
 	TRACK_RIGHT: 4,
-	HULL: 5,
-	PAYLOAD: 6,
 };
 
 const componentsByIndex =
@@ -169,8 +151,6 @@ const componentsByIndex =
 	{init: initTurret,    update: updateTurret,    prototype:turretPrototype,    array: turrets},
 	{init: initTrack,     update: funcNull,        prototype:trackPrototype,     array: trackLefts},
 	{init: initTrack,     update: funcNull,        prototype:trackPrototype,     array: trackRights},
-	{init: funcNull,      update: funcNull,        prototype:hullPrototype,      array: hulls},
-	{init: funcNull,      update: funcNull,        prototype:payloadPrototype,   array: payloads},
 ];
 
 
@@ -186,8 +166,8 @@ const ARCHETYPE =
 const entityArcheTypes = 
 {
 	[ARCHETYPE.TANK  ] : [COMPONENT.TRANSFORM, COMPONENT.MOTION, COMPONENT.TURRET,
-						  COMPONENT.TRACK_LEFT, COMPONENT.TRACK_RIGHT, COMPONENT.HULL],
-	[ARCHETYPE.BULLET] : [COMPONENT.TRANSFORM, COMPONENT.MOTION, COMPONENT.PAYLOAD],
+						  COMPONENT.TRACK_LEFT, COMPONENT.TRACK_RIGHT],
+	[ARCHETYPE.BULLET] : [COMPONENT.TRANSFORM, COMPONENT.MOTION],
 };
 //TODO	we could also just populate this procedurally by range.
 //		it really doesn't matter as this represents arbitrary, loaded user or save data.
@@ -392,7 +372,6 @@ function renderEntities()
 		
 		context.restore(); //after drawing whole tank OR bullet OR any other entity type.
 	}
-	
 }
 
 //--- Game Loop ---//

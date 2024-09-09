@@ -19,64 +19,6 @@ Download the project from [github](https://github.com/ArcaneEngineer/ECS-tutoria
  
  I recommend using [kdiff3](https://kdiff3.sourceforge.net/) if you don't have a favourite diff tool -- it allows 3-way diffs meaning you could compare the last 3 parts, and see their evolution side by side. 
 
-### Adding new components
-
-We'll need a couple of new components, one for the tank, and one for the bullet. Actually, one has been talked about in the past, but has been missing for a while: the tank's hull.
-
-```
-const hullPrototype =
-{
-	isActive: false,
-	
-	health: 0
-}
-```
-
-This is fairly straightforward; once you see how it is used, it should make complete sense.
-
-Next, we need a way to denote how much damage a bullet can do, and of what type the charge is (incendiary or armour-penetrating). This will help with our game logic when a bullet hits.
-
-```
-const payloadPrototype =
-{
-	isActive: false,
-	
-	damage: 0
-}
-
-```
-
-We'll add these `prototypes` to the existing entries in the `entityArcheTypes` array:
-
-```
-const entityArcheTypes = 
-{
-	[ARCHETYPE.TANK  ] : [COMPONENT.TRANSFORM, COMPONENT.MOTION, COMPONENT.TURRET,
-						  COMPONENT.TRACK_LEFT, COMPONENT.TRACK_RIGHT, 
-						  COMPONENT.HULL], // <-- added
-	[ARCHETYPE.BULLET] : [COMPONENT.TRANSFORM, COMPONENT.MOTION, 
-						  COMPONENT.PAYLOAD], // <-- added
-};
-```
-
-and as new entries to the `componentsByIndex` array:
-
-```
-const componentsByIndex =
-[
-	//in each case, we have type info and the data array.
-	//these could also be stored in 2 separate arrays.
-	
-	...
-	
-	{init: funcNull,      update: funcNull,        prototype:hullPrototype,      array: hulls},
-	{init: funcNull,      update: funcNull,        prototype:payloadPrototype,   array: payloads},
-];
-
-```
-
-Now these are ready for use in our update and rendering loops.
-
 ### Generalising the update loop
 
 Let's next look at our update loop from [part 3](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.js), and evaluate what it's doing.
