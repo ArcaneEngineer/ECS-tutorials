@@ -209,7 +209,7 @@ But how do we know what these dependencies are, that we need to check against?
 
 #### System dependencies 3: Finding what they are, and specifying them for use
 
-Dependencies are specific to each system. To find what they are, we look into each system function to see what it uses in the way of components, for example for the `updateTurret` system:
+Dependencies are specific to each system. To find what they are, we look into each system function to see what it uses in the way of components, for example, in our existing `updateTurret` system:
 
 ```
 
@@ -230,28 +230,7 @@ function updateTurret(e)
 		//spawn new bullet
 		console.log(e, 'says bang!');
 		
-		let bulletTransform = transforms[TANKS_COUNT+e];
-		let bulletMotion    = motions   [TANKS_COUNT+e];
-		bulletTransform.x = tankTransform.x;
-		bulletTransform.y = tankTransform.y;
-		
-		//normalised muzzle velocity (vec length = 1.0, i.e. on unit circle)
-		let muzzleDx = -Math.sin(turret.angle);
-		let muzzleDy = Math.cos(turret.angle);
-		
-		//muzzle velocity with multiplier applied
-		muzzleDx *= turret.gunPower;
-		muzzleDy *= turret.gunPower;
-		
-		//final bullet velocity = tank velocity + muzzle velocity
-		//"muzzle velocity" is the speed of a bullet as it leaves the gun barrel, relative to the barrel.
-		bulletMotion.dx = tankMotion.dx + muzzleDx;
-		bulletMotion.dy = tankMotion.dy + muzzleDy;
-		
-		bulletTransform.isActive = true;
-		bulletMotion   .isActive = true;
-		
-		turret.reloadCountdown = turret.reloadTime;
+		...
 	}
 }
 ```
@@ -283,13 +262,7 @@ function ECSprocess()
 {
 	for (let system of systems)
 	{
-		for (let e = 0; e < ENTITIES_COUNT; e++)
-		{
-			if (systemDependenciesSatisfiedByEntity(system, e))
-			{
-				system.update(e);
-			}
-		}
+		...
 	}
 }
 ```
@@ -298,8 +271,52 @@ function ECSprocess()
 
 There is one last thing to do.
 
-You'll have noticed that updateTurret contains some code which should not be there, specifically, updating the tank's speed according to the speed of its tracks. Let's fix this clear architectural mistake.
+You'll have noticed that `updateTurret` contains some code which should not be there, specifically, updating the tank's speed according to the speed of its tracks. Let's fix this architectural mistake by splitting the function in two.
 
+```
+function updateMotionFromTracks(e)
+{
+	let tankMotion = motions[e];
+	tankMotion.dy = trackLefts[e].speed + trackRights[e].speed;
+}
+```
+and
+```
+function updateTurret(e)
+{
+	let turret = turrets[e];
+	
+	turret.angle += turret.angleDelta;
+	
+	turret.reloadCountdown--;
+	
+	//shoot if we can
+	if (turret.reloadCountdown == 0)
+	{
+		let tankTransform = transforms[e];
+		let tankMotion = motions[e];
+		
+		//spawn new bullet
+		console.log(e, 'says bang!');
+		
+		...
+	}
+}
+```
+
+And lastly, let's ensure both of these are run as independent systems (marked by `<--`):
+
+```
+//Systems are listed in the order in which they will run.
+const systems = 
+[
+	{update: updateMotionFromTracks, componentDependencies: [COMPONENT.MOTION, COMPONENT.TRACK_LEFT, COMPONENT.TRACK_RIGHT]}, // <-- newly added
+	
+	{update: updateTransform, componentDependencies: [COMPONENT.TRANSFORM, COMPONENT.MOTION]},
+	
+	{update: updateTurret   , componentDependencies: [COMPONENT.TRANSFORM, COMPONENT.MOTION, COMPONENT.TURRET]}, // <-- existing
+];
+```
 
 ### Result
 

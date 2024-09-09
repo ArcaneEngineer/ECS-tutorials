@@ -242,17 +242,7 @@ function updateMotionFromTracks(e)
 }
 
 function updateTurret(e)
-{
-
-
-// function updateTurret(e)
-// {
-	// let yOld = transforms[e].y;
-	// let speed = trackLefts[e].speed + trackRights[e].speed;
-	// let tankTransform = transforms[e];
-	// tankTransform.y += speed;
-	// let tankMotion = motions[e];
-	
+{	
 	let turret = turrets[e];
 	
 	turret.angle += turret.angleDelta;
