@@ -243,6 +243,16 @@ function updateMotionFromTracks(e)
 
 function updateTurret(e)
 {
+
+
+// function updateTurret(e)
+// {
+	// let yOld = transforms[e].y;
+	// let speed = trackLefts[e].speed + trackRights[e].speed;
+	// let tankTransform = transforms[e];
+	// tankTransform.y += speed;
+	// let tankMotion = motions[e];
+	
 	let turret = turrets[e];
 	
 	turret.angle += turret.angleDelta;
@@ -377,8 +387,22 @@ function renderEntities()
 				context.restore(); //after drawing turret
 			}
 		}
+		else //it is a bullet
+		{
+			if (transforms[e].isActive) //it isn't dead
+			{
+				context.beginPath();
+				context.arc(0,0, BULLET_RADIUS, 0, 2 * Math.PI); //turret
+				context.closePath();
+				
+				//context.fillStyle = "black"; //colors[e % colors.length]; //loop the color index
+				context.fill();
+			}
+		}
+		
 		context.restore(); //after drawing whole tank OR bullet OR any other entity type.
 	}
+	
 }
 
 //--- Game Loop ---//

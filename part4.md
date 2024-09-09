@@ -162,8 +162,6 @@ Assuming trees existed in our game, how could we run `updateTransform` (literall
 
 Well.. we'd need to check our component dependencies. That is, for each _system_ we try to run, what components does it require to do its work? Does this entity `[e]` have those components active?
 
-(This idea is _not the same_ as an entity archetype's dependencies... don't get confused. Those just say, "a tank consists of a transform, a motion, a turret, two tracks, and a hull". Instead, systems say, "I have some work to do, and I need to know that this entity -- regardless of its archetype, and in its present state -- has the capabilities to do this work".)
-
 Imagine a tank whose turret has been destroyed. It no longer matches its archetype of `TANK`. It can still move, but it can longer turn its turret or shoot. But that tank won't stop doing `updateTransform` -- after all, it still has its `transform` and `motion` properties active. It can still move, even if it can't shoot.
 
 So this leaves us with the question, how do we integrate those `if`s into our newly generalised code structure?
@@ -203,7 +201,11 @@ function systemDependenciesMetByEntity(system, e)
 }
 ```
 
-OK, _that_ should work. Before we run the system's `update` function, we check whether it has the dependencies that its `update` function needs to do its work. This ensures that bullets don't, for example, try to shoot more bullets, acting as though they were a tank turret!
+...It just keeps folding the boolean result into itself until it's done. If at any stage it hits `false`, the result will stay `false` due to the use of `&&` (logical AND).
+
+So before we run the system's `update` function, we check whether it has the dependencies that its `update` function needs to do its work. This ensures that bullets don't, for example, try to shoot more bullets, acting as though they were a tank turret!
+
+But how do we know what these dependencies are, that we need to check against?
 
 #### System dependencies 3: Finding what they are, and specifying them for use
 
@@ -254,11 +256,11 @@ function updateTurret(e)
 }
 ```
 
-We're looking for each refernce to a component array where we access element `[e]` (the current entity being processed).
+We're looking for each reference to a component array where we access element `[e]` (the current entity being processed).
 
-In this way, we see what is needed on _this_ tank, in order to update its `turret`. That is, we need `turrets[e]`, `transforms[e]` and `motions[e]`. (I've marked each with a `<--` comment.)
+In this way, we see what is needed on _the current_ tank, in order to update its `turret`. That is, we need `turrets[e]`, `transforms[e]` and `motions[e]`. (I've marked each with a `<--` comment.)
 
-(Did you notice that we also access `transforms` and `motions` at `[TANKS_COUNT+e]`? However, these are for the bullet being fired, _not_ for the turret/tank we are currently processing _in order to fire that bullet_. This is a simplicity hack that I used to make the series easy to follow; we'd not work this way in a fully-implemented ECS. We'll de-hack this in a later part.)
+(Did you notice that we also access `transforms` and `motions` at `[TANKS_COUNT+e]`? However, these are for the bullet being fired, and _not_ for the turret/tank we are currently processing _in order to fire that bullet_. I did this to make the series easier to follow up until now; we'd not work this way in a fully-implemented ECS. We'll de-hack this in a later part.)
 
 Now we know the dependencies for this system function, so how do we specify them in code?
 
@@ -268,47 +270,50 @@ const systems =
 [
 	...
 	{update: updateTransform, componentDependencies: [COMPONENT.TRANSFORM, COMPONENT.MOTION]},
-	{update: updateTurret   , componentDependencies: [COMPONENT.TRANSFORM, COMPONENT.MOTION, COMPONENT.TURRET]},
+	{update: updateTurret   , componentDependencies: [COMPONENT.TRANSFORM, COMPONENT.MOTION, COMPONENT.TURRET]}, // <-- that's our guy
 	...
 ];
 ```
 
-With this in place, systems should be able to do their work according to the kind of entity that `[e]` is.
+With this in place, systems called in `processComponents` should be able to do their work according to the kind of entity that `[e]` is. Perfect. Actually, there is one more thing, let's rename that function, shall we?
 
-
-
-
-
-
-
-
+```
+//Our ECS function.
+function ECSprocess() 
+{
+	for (let system of systems)
+	{
+		for (let e = 0; e < ENTITIES_COUNT; e++)
+		{
+			if (systemDependenciesSatisfiedByEntity(system, e))
+			{
+				system.update(e);
+			}
+		}
+	}
+}
+```
 
 #### Fixing updateTurret
+
+There is one last thing to do.
 
 You'll have noticed that updateTurret contains some code which should not be there, specifically, updating the tank's speed according to the speed of its tracks. Let's fix this clear architectural mistake.
 
 
-
-### Generalising the rendering loop
-
-Now let's look at our existing render loop from [part 3](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.js), and evaluate what it's doing.
-
-```
-```
-
-
-### Differentiating archetypes
-
-
-
 ### Result
 
-![part4_tiny_tanks.png](https://ucarecdn.com/c204fb62-5e6d-43b5-afc4-87980adc47f1/)
+At this stage you can run the app and everything should be working exactly as before.
 
-...
+![part2_tiny_tanks.png](https://ucarecdn.com/c204fb62-5e6d-43b5-afc4-87980adc47f1/)
 
-The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials/part3.js).
+As this was a pure refactoring exercise, our output is indistinguishable from that of parts [2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md) and [3](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.md).
+
+The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part4.js).
+
 
 ## Conclusion
 
 We've seen how to generalise our whole ECS, from initialisation through to runtime updates and rendering.
+
+System dependencies are _not the same_ as entity archetype dependencies, even though they both talk about components... so don't get confused. Archetypes just say, "an ideal tank consists of a transform, a motion, a turret, two tracks, and a hull, so we'll initialise it like that". Instead, systems say, "I have some work to do, and I need to know that this entity -- regardless of its original archetype, and in its present state -- still has the capabilities to do this work".
