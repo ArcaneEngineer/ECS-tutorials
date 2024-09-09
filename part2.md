@@ -555,7 +555,7 @@ With all the code in place, you'll be able to hit the space bar repeatedly and s
 
 For now, bullets don't do anything, but it is worth noticing that no bullets appear onscreen _until_ they are fired by the tanks. This is due to the `isActive`-based selectiveness of our drawing function.
 
-The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials).
+The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.js).
 
 ## Conclusion
 

@@ -408,7 +408,7 @@ But that will be for a future part of this series!
 
 As this was a pure refactoring exercise, our output is indistinguishable from that of [part 2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md).
 
-The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials/part3.js).
+The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.js).
 
 ## Conclusion
 

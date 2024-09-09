@@ -219,7 +219,7 @@ Hitting spacebar repeatedly will have your tanks racing down the screen, some fa
 
 ![part1_tanks_race.png](https://ucarecdn.com/4a90cc33-e044-405a-bcb0-b38bff0368ac/)
 
-The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials).
+The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part1.js).
 
 ## Conclusion
 
