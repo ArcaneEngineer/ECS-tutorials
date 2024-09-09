@@ -162,11 +162,9 @@ Assuming trees existed in our game, how could we run `updateTransform` (literall
 
 Well.. we'd need to check our component dependencies. That is, for each _system_ we try to run, what components does it require to do its work? Does this entity `[e]` have those components active?
 
-_This idea is not the same as an entity archetype's dependencies_. Those just say, "a tank consists of a transform, a motion, a turret, two tracks, and a hull". Instead, systems say, "I have some work to do, and I need to know that this entity (regardless of its archetype, and in its present state) has the capabilities to do this work".
+(This idea is _not the same_ as an entity archetype's dependencies... don't get confused. Those just say, "a tank consists of a transform, a motion, a turret, two tracks, and a hull". Instead, systems say, "I have some work to do, and I need to know that this entity -- regardless of its archetype, and in its present state -- has the capabilities to do this work".)
 
-Imagine a tank whose turret has been destroyed. It no longer matches its archetype of `TANK`. It can still move, but it can longer turn its turret or shoot.
-
-But that tank won't stop doing `updateTransform` -- after all, it still has its `transform` and `motion` properties active, that is, it can still drive, even if it can't shoot.
+Imagine a tank whose turret has been destroyed. It no longer matches its archetype of `TANK`. It can still move, but it can longer turn its turret or shoot. But that tank won't stop doing `updateTransform` -- after all, it still has its `transform` and `motion` properties active. It can still move, even if it can't shoot.
 
 So this leaves us with the question, how do we integrate those `if`s into our newly generalised code structure?
 
