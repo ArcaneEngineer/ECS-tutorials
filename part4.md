@@ -2,15 +2,15 @@
 
 By the end [part 3](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.md), we had set up our Entity-Component System (ECS) proof-of-concept -- Tiny Tanks -- that demonstrates generalised entity-component population and initialisation phases. It uses complex (object-based) and (de)activatable components.
 
-In terms of game logic updates and rendering, our ECS is still tightly coupled and application-specific. In part 4, we will _refactor_ again: without changing existing functionality, we'll conclude making our existing ECS less application-specific.
+In terms of game logic updates, our ECS is still tightly coupled and application-specific. In part 4, we will _refactor_ again: touching a minimal amount of code, we'll make our ECS less application-specific.
 
  We'll do this using _systems_, the third part of the ECS triad.
 
 ## Technical overview
 
-Our ECS update and rendering phases will each be generalised. We will continue to use our specialised `componentsByIndex` concrete data and type-information array, and type information provided by our `entityArcheTypes` array.
+We will continue to use and update our specialised `componentsByIndex` concrete data and type-information array, and type information provided by our `entityArcheTypes` array.
 
-We will further differentiate the `TANK` and `BULLET` archetypes by adding some additional components to them, in preparation for the use of _systems_. This will not change existing functionality.
+We will also begin the use of _systems_. These are, in essence, the `update*` functions we have been using so far. However, they are more constrained in the way they operate, and need to satisfy _system dependencies_ in terms of components, in order to work. More on this shortly.
  
 ## Writing the Code
 
@@ -308,6 +308,8 @@ The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tu
 
 ## Conclusion
 
-We've seen how to generalise our whole ECS, from initialisation through to runtime updates and rendering.
+We've seen how to generalise our whole ECS, from initialisation through to game logic updates.
 
-System dependencies are _not the same_ as entity archetype dependencies, even though they both talk about components... so don't get confused. Archetypes just say, "an ideal tank consists of a transform, a motion, a turret, two tracks, and a hull, so we'll initialise it like that". Instead, systems say, "I have some work to do, and I need to know that this entity -- regardless of its original archetype, and in its present state -- still has the capabilities to do this work".
+It's worth noting that there are two types of dependencies in our ECS: System dependencies are _not the same_ as entity archetype dependencies, even though they both talk about components. Archetypes just say, "an ideal tank consists of a transform, a motion, a turret, two tracks, and a hull, so we'll initialise it like that". Whereas systems say, "I have some work to do, and I need to know that this entity -- regardless of its original archetype, and in its present state, whatever that may be -- still has the capabilities to do this work".
+
+I hope you enjoyed this part. In the next part, we will add some new components, and generalise our rendering system.
