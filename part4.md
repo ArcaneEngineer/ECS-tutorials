@@ -155,7 +155,7 @@ function processComponents()
 	{
 		for (let e = 0; e < ENTITIES_COUNT; e++)
 		{
-			if (systemDependenciesSatisfiedByEntity(system, e))
+			if (systemDependenciesMetByEntity(system, e))
 			{
 				system.update(e);
 			}
@@ -169,12 +169,12 @@ The function used to check the dependencies is simple: provided that no componen
 ```
 function systemDependenciesMetByEntity(system, e)
 {
-	let depsSatisfied = true; //assume true until proven false
+	let depsMet = true; //assume true until proven false
 	for (let c of system.componentDependencies)
 	{
-		depsSatisfied = depsSatisfied && componentsByIndex[c].array[e].isActive;
+		depsMet = depsMet && componentsByIndex[c].array[e].isActive;
 	}
-	return depsSatisfied;
+	return depsMet;
 }
 ```
 
