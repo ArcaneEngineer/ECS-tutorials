@@ -135,6 +135,8 @@ function updateTransform(e)
 
 This updater function needs at least to have a `transform` and a `motion` component. If we found an entity that had an active `transform`, but an inactive `motion`, then this logic could not work. For example, a tree just sits at a position, but doesn't move. By not giving trees an active `motion` component, we are saying "trees can't move".
 
+(Remember that all entities have the full set of all components _allocated in the component arrays_; but crucially it is the `.isActive` state that tells us whether or not those can be _used_ by our `update` code. It is because we do not set `turret[e].isActive = true` for something we intend to be a bullet, that causes a bullet to never act like a turret. Read that again!)
+
 Assuming trees existed in our game, how could we run `updateTransform` (literally, _move_) for bullets but not for trees?
 
 Well.. we'd need to check our component dependencies. That is, for each _system_ we try to run, what components does it require to do its work? Does this entity `[e]` have those components active?
