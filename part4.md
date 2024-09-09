@@ -10,7 +10,7 @@ In terms of game logic updates, our ECS is still tightly coupled and application
 
 We will continue to use  our specialised `componentsByIndex` concrete data and type-information array to generalise the `update` system.
 
-We will also begin the use of _systems_. These are, in essence, the `update*` functions we have been using so far. However, they are more constrained in the way they operate, and need to satisfy _system dependencies_ in terms of components, in order to work. More on this shortly.
+We will also begin the use of _systems_. These are, in essence, the `update*` functions we have been using so far. However, they will be more constrained in the way they operate, and need to satisfy _system dependencies_ in terms of components, in order to work. More on this shortly.
  
 ## Writing the Code
 
