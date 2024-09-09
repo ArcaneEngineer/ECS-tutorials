@@ -561,6 +561,8 @@ The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tu
 
 This has been our first look at how an ECS can do selective processing on complex components, in both game / simulation logic as well as in rendering logic. Hopefully you begin to see how much entity _composition_ can do, vs. the enormously more restrictive and fragile OOP approaches that some programmers use to do entity management.
 
+Bear in mind that all entities have the full set of all components _allocated in their component arrays_, meaning technically those array slots / components can be used; but it is our `.isActive` flag that tells us whether or not we intend for those to be _used_ by the relevant `update` code. For a bullet, we never set `turret[e].isActive = true`; _and that is why a bullet entity never behaves like a turret_ in our game. This is how we define entities -- by their active components.
+
 In future parts, we will look at how we can do this even more efficiently, by breaking the global entities list we're using now (of all indices into the various components arrays, regardless of entity type, be it tank or bullet) down into smaller sub-lists, suitable for different kinds of processing.
 
 In the next part, we're going to see how we can generalise our ECS even further, avoiding any component-specific logic or references in our main ECS processing function.
