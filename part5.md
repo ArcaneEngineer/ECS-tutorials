@@ -12,7 +12,7 @@ We will treat rendering as a separate _phase_ of ECS processing. Our existing EC
 To the `TANK` and `BULLET` archetypes, we'll add some new components. These will serve two purposes: 
 
 - differentiating our archetypes further (at the moment, `BULLET` is very generic, having only `transform` and `motion` components), and 
-- setting the scene for the next part of this series.
+- setting the scene for new game logic in a future part of this series.
 
 ## Writing the Code
 
@@ -62,7 +62,9 @@ const hullPrototype =
 }
 ```
 
-We also need a way to denote how much damage a bullet can do, and of what type the charge is (incendiary or armour-penetrating). This will help with our game logic when a bullet hits.
+Let's also create a way to say damage a bullet can do, and of what type the charge is (incendiary or armour-penetrating). This will help with our game logic when a bullet hits, which we'll handle in a future part of this series.
+
+For now, in fact we just want a valid prototype that differentiates a bullet from a tank:
 
 ```
 const payloadPrototype =
@@ -103,9 +105,9 @@ const componentsByIndex =
 
 ```
 
-Now these are _almost_ ready for use in our update and rendering loops. However, we still need to set up our entity archtypes which will reference these new components.
+These are _almost_ ready for use in our update and rendering loops. However, later in this tutorial, we'll set up our entity archtypes which will reference these new components.
 
-Remember that the first array is used to denote the values (by variable name) in the second array. The second array is what is used to actually construct each entity at initialisation.
+Remember that the first archetypes array is used to denote the values (by variable name) in the second array. The second array is what is used to actually construct each entity at initialisation.
 
 ```
 const ARCHETYPE = 
@@ -126,11 +128,11 @@ const entityArcheTypes =
 
 ```
 
-These entities and their new components are now ready for use by our new ECS _systems_, which we'll now implement.
+These entities and their new components are ready for use by our new ECS _systems_, which we'll implement next.
 	
 ### Systematising rendering code
 
-Our current render code is quite knotty:
+Our old render code is quite knotty:
 
 ```
 //--- Draw / Render logic ---//
@@ -202,15 +204,15 @@ function renderEntities()
 }
 ```
 
-I take that back -- this is more than knotty, it's horrific code. Why?
+OK, it is more than knotty, it's horrific. Why?
 
 - We are mixing the rendering of numerous types of entities by using nested `if-else` blocks. At best, if we insist on using conditionals inside this function, it should be a flat `switch` statement without nesting.
 - Our code uses `if (e < TANKS_COUNT)` then it is a tank, `else` it is a bullet. This means we are relying on specific ranges in our entity-components arrays to decide what type an entity is.
 - We are checking `.isActive`, which should now be the job of `processComponents()` via its call to `systemDependenciesMetByEntity()`.
 
-So let's convert our render from one monolithic function into numerous small systems, one per component type being rendered.
+So let's convert our render from one messy, monolithic function into numerous small and clean systems, one per component type being rendered.
  
-Start by deleting `renderEntities()` entirely. Our new systems will replace it.
+Start by deleting the old `renderEntities()` entirely. Our new systems will replace it.
 
 #### Bullets rendering system
 
@@ -302,7 +304,7 @@ const systems =
 
 #### Turret rendering system
 
-Lastly, the turret, again we have no conditionals, a simple, flat code structure:
+Lastly, for the turret, again we have no conditionals, it's a simple, flat code structure:
 
 ```
 function renderTurret(e)
@@ -332,7 +334,7 @@ function renderTurret(e)
 }
 ```
 
-This time we save the context, translate to the turret's position, save the context again, rotate to the turret's angle, draw, then restore _twice_ to get back to clear up the drawing context back to its original state. Remember that the drawing context works like a [stack] whenever we `save()` and `restore()` (push and pop).
+This time we save the context, translate to the turret's position, save the context again, rotate to the turret's angle, draw, then restore _twice_ to get back completely clear up the drawing context back to its original state. Remember that the drawing context works like a [stack] whenever we `save()` and `restore()` (push and pop), that is, if we saved twice, we must restore twice.
 
 Create our final new system _at the top_ of our `systems` array, that references `renderTurret`:
 
@@ -353,7 +355,7 @@ const systems =
 
 ### Result
 
-Since what we did was _almost_ pure refactoring, if we now run the code, the output does not differ (the only difference being that the simulation starts advanced by one tick) from part 4.
+Since what we did was _almost_ pure refactoring, if we now run the code, the output does not differ (the only difference being that the simulation starts advanced by one tick) from parts 2, 3, and 4. While it looks the same, we have made _many_ improvements since part 2.
 
 ![part2_tiny_tanks.png](https://ucarecdn.com/c204fb62-5e6d-43b5-afc4-87980adc47f1/)
 
@@ -364,10 +366,10 @@ The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tu
 
 ## Conclusion
 
-We've seen how to generalise our entire ECS, from initialisation through to game logic _and_ render updates, by treating rendering as a set of additional systems (`hull`, `turret`, and `bullet` / `payload`).
-
-While this is not the only way to approach rendering, it does give a simple example of how versatile systems can be.
+We've seen how to generalise our entire ECS, from initialisation through to game logic _and_ render updates, by treating rendering as a set of additional systems (`hull`, `turret`, and `bullet` / `payload`). While this is not the only way to approach rendering, it does give a simple example of how versatile systems can be.
 
 All those conditionals we previously had in the `renderEntities()` function we deleted, have been replaced by functionality provided by `processComponents()` via its call to `systemDependenciesMetByEntity()`. This makes our game's code far easier to reason about.
 
-In the next part, we will look at how we can better organise our code, and we'll finally add the ability for tanks bullets to hit other tanks!
+This is _beginning_ to look like a real ECS, although there is no shortage of improvements still to be made,
+
+In the next part, we will look at how we can better organise our code, and we'll add the ability for tanks bullets to hit other tanks with their bullets.
