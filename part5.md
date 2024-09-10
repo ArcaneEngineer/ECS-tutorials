@@ -334,7 +334,7 @@ function renderTurret(e)
 }
 ```
 
-This time we save the context, translate to the turret's position, save the context again, rotate to the turret's angle, draw, then restore _twice_ to get back completely clear up the drawing context back to its original state. Remember that the drawing context works like a [stack] whenever we `save()` and `restore()` (push and pop), that is, if we saved twice, we must restore twice.
+This time we save the context, translate to the turret's position, save the context again, rotate to the turret's angle, draw, then restore _twice_ to get back completely clear up the drawing context back to its original state. Remember that the drawing context works like a [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) whenever we `save()` and `restore()` (push and pop), that is, if we saved twice, we must restore twice.
 
 Create our final new system _at the top_ of our `systems` array, that references `renderTurret`:
 
