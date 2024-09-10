@@ -3,13 +3,20 @@
 [Last time](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part4.md),
 , I stated that our ECS had been completely generalised.
 
-Well, that is not quite true! We have yet to ECS-ify our renderer logic.
-
-We will further differentiate the `TANK` and `BULLET` archetypes by adding some additional components to them, in preparation for this task. 
+Well, that is not quite true! We have yet to ECS-ify our rendering logic.
 
 ## Technical overview
 
-We will begin to treat our renderer as a separate _phase_ of our ECS processing, as set up in the last part. This allows us to generalise rendering, just like any other system, rather than having it hardcoded in our main game loop:
+We will treat rendering as a separate _phase_ of ECS processing. Our existing ECS functions from part 4, will support us in this endeavour. We'll just need to add some new systems to leverage those functions.
+
+To the `TANK` and `BULLET` archetypes, we'll add some new components. These will serve two purposes: 
+
+- differentiating our archetypes further (at the moment, `BULLET` is very generic, having only `transform` and `motion` components), and 
+- setting the scene for the next part of this series.
+
+## Writing the Code
+
+Rather than rendering being hardcoded in our main game loop, as we had it before, the root of systematising rendering begins here:
 
 ```
 function gameLoop()
@@ -21,11 +28,26 @@ function gameLoop()
 	
 	turn++;
 }
-```
- 
-## Writing the Code
 
-Let's start by adding some new components. These will serve two purposes: differentiating our archetypes further (at the moment, `BULLET` is very generic, having only `transform` and `motion` components), and setting the scene for the next part.
+renderEntities();
+```
+
+Go ahead and change that to:
+
+```
+function gameLoop()
+{
+	console.log("Processing turn", turn, "...");
+	
+	processComponents(); //call our ECS to process everything.
+	
+	turn++;
+}
+
+processComponents();
+```
+
+
 
 ### Adding new components
 
