@@ -231,17 +231,7 @@ const systems =
 ];
 ```
 
-With this in place, systems called in `processComponents` should be able to do their work according to the kind of entity that `[e]` is. Perfect. Actually, there is one more thing, let's rename that function, shall we?
-
-```
-//Our ECS function.
-function ECSprocess() 
-{
-	for (let system of systems)
-	{
-		...
-	}
-}
+With this in place, systems called in `processComponents` should be able to do their work according to the kind of entity that `[e]` is. Perfect.
 ```
 
 #### Fixing updateTurret
