@@ -355,7 +355,7 @@ const systems =
 
 ### Result
 
-Since what we did was _almost_ pure refactoring, if we now run the code, the output does not differ (the only difference being that the simulation starts advanced by one tick) from parts [2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md), [3](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.md), and [4](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part4.md). While it looks the same, we have made _many_ improvements since part 2 -- diffing part 2 against part 5 shows this in stark relief.
+Since what we did was _almost_ pure refactoring, if we now run the code, the output does not differ (the only difference being that the simulation starts advanced by one tick) from parts [2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md), [3](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.md), and [4](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part4.md). While it looks the same, we have made _many_ improvements since part 2! (just compare part2.js to part5.js as proof)
 
 ![part2_tiny_tanks.png](https://ucarecdn.com/c204fb62-5e6d-43b5-afc4-87980adc47f1/)
 
