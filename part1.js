@@ -103,7 +103,7 @@ function renderAllTanks()
 //--- Game Loop ---//
 
 let turn = 0;
-function updateGameLogic()
+function gameLoop()
 {
 	console.log("Processing turn", turn, "...");
 	
@@ -115,4 +115,4 @@ function updateGameLogic()
 
 renderAllTanks();
 
-document.addEventListener('keyup', event => { if (event.code === 'Space') updateGameLogic(); })
+document.addEventListener('keyup', event => { if (event.code === 'Space') gameLoop(); })

@@ -121,7 +121,7 @@ allTanksTakeTheirTurns();
 
 ```
 let turn = 0;
-function updateGameLogic()
+function gameLoop()
 {
 	console.log("Processing turn", turn, "...");
 	
@@ -130,7 +130,7 @@ function updateGameLogic()
 	turn++;
 }
 
-document.addEventListener('keyup', event => { if (event.code === 'Space') updateGameLogic(); })
+document.addEventListener('keyup', event => { if (event.code === 'Space') gameLoop(); })
 ```
 
 As you press spacebar repeatedly, you should see messages appearing in your browser's console, stating the speed and position of each tank.
@@ -198,7 +198,7 @@ To use that, our game loop must now call `renderAllTanks()` on every update (and
 //--- Game Loop ---//
 
 let turn = 0;
-function updateGameLogic()
+function gameLoop()
 {
 	console.log("Processing turn", turn, "...");
 	
@@ -210,7 +210,7 @@ function updateGameLogic()
 
 renderAllTanks(); //pre-draw, for when we load the HTML page.
 
-document.addEventListener('keyup', event => { if (event.code === 'Space') updateGameLogic(); })
+document.addEventListener('keyup', event => { if (event.code === 'Space') gameLoop(); })
 ```
 
 ### Result
