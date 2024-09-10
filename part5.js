@@ -58,6 +58,20 @@ const trackPrototype =
 	speed: 0
 }
 
+const hullPrototype =
+{
+	isActive: false,
+	
+	health: 0
+}
+
+const payloadPrototype =
+{
+	isActive: false,
+	
+	damage: 0
+}
+
 //--- Declare lerp function ---//
 
 function lerp(min, max, t)
@@ -130,6 +144,8 @@ const motions     = new Array(ENTITIES_COUNT);
 const turrets     = new Array(ENTITIES_COUNT);
 const trackLefts  = new Array(ENTITIES_COUNT);
 const trackRights = new Array(ENTITIES_COUNT);
+const hulls       = new Array(ENTITIES_COUNT);
+const payloads    = new Array(ENTITIES_COUNT);
 
 //--- Components ---///
 
@@ -140,6 +156,8 @@ const COMPONENT =
 	TURRET: 2,
 	TRACK_LEFT: 3,
 	TRACK_RIGHT: 4,
+	HULL: 5,
+	PAYLOAD: 6,
 };
 
 const componentsByIndex =
@@ -151,6 +169,8 @@ const componentsByIndex =
 	{init: initTurret,    prototype: turretPrototype,    array: turrets},
 	{init: initTrack,     prototype: trackPrototype,     array: trackLefts},
 	{init: initTrack,     prototype: trackPrototype,     array: trackRights},
+	{init: funcNull,      prototype: hullPrototype,      array: hulls},
+	{init: funcNull,      prototype: payloadPrototype,   array: payloads},
 ];
 
 
@@ -166,8 +186,8 @@ const ARCHETYPE =
 const entityArcheTypes = 
 {
 	[ARCHETYPE.TANK  ] : [COMPONENT.TRANSFORM, COMPONENT.MOTION, COMPONENT.TURRET,
-						  COMPONENT.TRACK_LEFT, COMPONENT.TRACK_RIGHT],
-	[ARCHETYPE.BULLET] : [COMPONENT.TRANSFORM, COMPONENT.MOTION],
+						  COMPONENT.TRACK_LEFT, COMPONENT.TRACK_RIGHT, COMPONENT.HULL],
+	[ARCHETYPE.BULLET] : [COMPONENT.TRANSFORM, COMPONENT.MOTION, COMPONENT.PAYLOAD],
 };
 //TODO	we could also just populate this procedurally by range.
 //		it really doesn't matter as this represents arbitrary, loaded user or save data.
@@ -275,10 +295,15 @@ function updateTransform(e)
 //Systems are listed in the order in which they will run.
 const systems = 
 [
+	//render systems
+	{update: renderHull     , componentDependencies: [COMPONENT.TRANSFORM, COMPONENT.HULL]},
+	{update: renderTurret   , componentDependencies: [COMPONENT.TRANSFORM, COMPONENT.TURRET]},
+	{update: renderBullet   , componentDependencies: [COMPONENT.TRANSFORM, COMPONENT.PAYLOAD]},
+
+	//simulate (game logic) systems
 	{update: updateMotionFromTracks, componentDependencies: [COMPONENT.MOTION, COMPONENT.TRACK_LEFT, COMPONENT.TRACK_RIGHT]},
 	{update: updateTransform, componentDependencies: [COMPONENT.TRANSFORM, COMPONENT.MOTION]},
 	{update: updateTurret   , componentDependencies: [COMPONENT.TRANSFORM, COMPONENT.MOTION, COMPONENT.TURRET]},
-	//{update: renderTank     , componentDependencies: [COMPONENT.TRANSFORM, COMPONENT.TURRET]},
 ];
 
 function systemDependenciesMetByEntity(system, e)
@@ -312,66 +337,68 @@ const HULL_WIDTH = 28;
 const HULL_HEIGHT = 34;
 const colors = ["red", "green", "blue", "cyan", "magenta", "yellow"];
 
-function renderEntities()
+function renderHull(e)
 {
-	context.fillStyle = "white";
-	context.clearRect(0, 0, canvas.width, canvas.height);
-	context.fillRect (0, 0, canvas.width, canvas.height);
+	let transform = transforms[e];
 	
-	for (let e = 0; e < ENTITIES_COUNT; e++)
-	{
-		context.fillStyle = colors[(e % TANKS_COUNT) % colors.length]; //loop the color index
+	context.fillStyle = colors[(e % TANKS_COUNT) % colors.length]; //loop the color index
+	
+	context.save(); //before translation
+	context.translate(transform.x, transform.y);
 		
-		let xPos = transforms[e].x;
-		let yPos = transforms[e].y;
+	//draw line from start to current position.
+	context.fillRect( 0, 0,
+					  1, -transform.y);
+	
+	//draw hull at current position.
+	context.fillRect( -HULL_WIDTH/2, -HULL_HEIGHT/2, //start drawing here 
+					   HULL_WIDTH,    HULL_HEIGHT); //draw this far from start
+
+	context.restore(); //undo translation
+}
+
+function renderTurret(e)
+{
+	let transform = transforms[e];
+	let turret = turrets[e];
+	
+	context.fillStyle = colors[(e % TANKS_COUNT) % colors.length]; //loop the color index
+	
+	context.save(); //before translation
+	context.translate(transform.x, transform.y);
+
+	context.save(); //before rotation
+	context.rotate(turret.angle);
+	
+	context.beginPath();
+	context.arc(0,0, HULL_WIDTH/2, 0, 2 * Math.PI); //turret
+	context.rect( -HULL_WIDTH/8, HULL_WIDTH/2,
+				   HULL_WIDTH/4, HULL_WIDTH/2); //gunbarrel
+	context.closePath();
+	context.stroke();
+	context.fill();
+	
+	context.restore(); //undo rotation
 		
-		context.save();
-		context.translate(xPos, yPos);
-		
-		if (e < TANKS_COUNT) //it is a tank
-		{
-			if (transforms[e].isActive) //it isn't dead
-			{
-				let turret = turrets[e];
-				
-				//draw a line from start transform to current transform.
-				context.fillRect( 0, 0,
-								  1, -yPos);
-				
-				//draw the tank's hull at current transform.
-				context.fillRect( -HULL_WIDTH/2, -HULL_HEIGHT/2, //start drawing here 
-								   HULL_WIDTH,    HULL_HEIGHT); //draw this far from start
-				
-				context.save(); //before drawing turret
-				context.rotate(turret.angle);
-			
-				//draw the tank's turret.
-				context.beginPath();
-				context.arc(0,0, HULL_WIDTH/2, 0, 2 * Math.PI); //turret
-				context.rect( -HULL_WIDTH/8, HULL_WIDTH/2,
-							   HULL_WIDTH/4, HULL_WIDTH/2); //gunbarrel
-				context.closePath();
-				context.stroke();
-				context.fill();
-				
-				context.restore(); //after drawing turret
-			}
-		}
-		else //it is a bullet
-		{
-			if (transforms[e].isActive) //it isn't dead
-			{
-				context.beginPath();
-				context.arc(0,0, BULLET_RADIUS, 0, 2 * Math.PI); //turret
-				context.closePath();
-				
-				//context.fillStyle = "black"; //colors[e % colors.length]; //loop the color index
-				context.fill();
-			}
-		}
-		
-		context.restore(); //after drawing whole tank OR bullet OR any other entity type.
-	}
+	context.restore(); //undo translation
+}
+
+function renderBullet(e)
+{
+	let transform = transforms[e];
+	
+	context.fillStyle = colors[(e % TANKS_COUNT) % colors.length]; //loop the color index
+	
+	context.save();
+	context.translate(transform.x, transform.y);
+	
+	context.beginPath();
+	context.arc(0,0, BULLET_RADIUS, 0, 2 * Math.PI); //turret
+	context.closePath();
+	
+	context.fill();
+	
+	context.restore();
 }
 
 //--- Game Loop ---//
@@ -381,12 +408,15 @@ function gameLoop()
 {
 	console.log("Processing turn", turn, "...");
 	
+	context.fillStyle = "white";
+	context.clearRect(0, 0, canvas.width, canvas.height);
+	context.fillRect (0, 0, canvas.width, canvas.height);
+	
 	processComponents(); //call our ECS to process everything.
-	renderEntities();
 	
 	turn++;
 }
 
-renderEntities();
-
+processComponents(); //to ensure initial render.
+	
 document.addEventListener('keyup', event => { if (event.code === 'Space') gameLoop(); })
