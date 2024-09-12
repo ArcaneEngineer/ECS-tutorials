@@ -340,6 +340,10 @@ const systems =
 ]
 ```
 
+Why do we specify renderer systems _before_ game logic?
+
+This is because we have to call `processComponents()` immediately on startup. If we run game logic first, and _then rendering_, we will already see our tanks advanced by one frame. To keep the output as per previous parts, we avoid this by rendering before updating positions, rotations etc.
+
 ### Result
 
 Since what we did was _almost_ pure refactoring, if we now run the code, the output does not differ (the only difference being that the simulation starts advanced by one tick) from parts [2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md), [3](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part3.md), and [4](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part4.md). While it looks the same, we have made _many_ improvements since part 2!
