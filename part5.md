@@ -225,7 +225,7 @@ function renderBullet(e)
 }
 ```
 
-As you can see, the conditionals we had before have been completely eliminated. This is because the way we set up our archetypes and process them via `processComponents()`, will fulfill any component dependencies we need to know that entity `[e]` is, in fact, a bullet. We no longer need to check `.isActive` here. Also, because a bullet is clearly a bullet by the fact that it has a `PAYLOAD`, we can be sure that we are drawing a bullet.
+As you can see, the conditionals we had before have been completely eliminated. This is because the way we set up our archetypes and process them via `processComponents()`, will fulfill any component dependencies we need to know that entity `[e]` is, in fact, a bullet. We no longer need to check `.isActive` here. Also, because a bullet is clearly a bullet by the fact that it has a `PAYLOAD`, and that we have specified `PAYLOAD` as bullet's archetype dependency, we can be sure that we are drawing a bullet.
 
 We save the drawing context, translate to the bullet's position, then draw it, then restore the drawing context (as future calls to draw will need the "identity matrix" context without any transformations applied).
 
