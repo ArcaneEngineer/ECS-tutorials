@@ -76,20 +76,7 @@ const payloadPrototype =
 
 ```
 
-We'll add these `prototypes` to the existing entries in the `entityArcheTypes` array:
-
-```
-const entityArcheTypes = 
-{
-	[ARCHETYPE.TANK  ] : [COMPONENT.TRANSFORM, COMPONENT.MOTION, COMPONENT.TURRET,
-						  COMPONENT.TRACK_LEFT, COMPONENT.TRACK_RIGHT, 
-						  COMPONENT.HULL], // <-- added
-	[ARCHETYPE.BULLET] : [COMPONENT.TRANSFORM, COMPONENT.MOTION, 
-						  COMPONENT.PAYLOAD], // <-- added
-};
-```
-
-and as new entries to the `componentsByIndex` array:
+We'll add these as new entries to the `componentsByIndex` array:
 
 ```
 const componentsByIndex =
@@ -104,8 +91,8 @@ const componentsByIndex =
 ];
 
 ```
-
-These are _almost_ ready for use in our update and rendering loops. However, later in this tutorial, we'll set up our entity archtypes which will reference these new components.
+ 
+We also need to set up our entity archtypes, which will reference these new components.
 
 Remember that the first archetypes array is used to denote the values (by variable name) in the second array. The second array is what is used to actually construct each entity at initialisation.
 
@@ -370,6 +357,6 @@ We've seen how to generalise our entire ECS, from initialisation through to game
 
 All those conditionals we previously had in the `renderEntities()` function we deleted, have been replaced by functionality provided by `processComponents()` via its call to `systemDependenciesMetByEntity()`. This makes our game's code far easier to reason about.
 
-This is _beginning_ to look like a real ECS, although there is no shortage of improvements still to be made,
+It now _begins_ to look like a real ECS, though there is no shortage of improvements still to be made.
 
 In the next part, we will look at how we can better organise our code, and we'll add the ability for tanks' bullets to hit other tanks!
