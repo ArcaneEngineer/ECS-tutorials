@@ -1,7 +1,6 @@
 # ENTITY COMPONENT SYSTEMS: Part 5
 
-[Last time](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part4.md),
-, I stated that our ECS had been completely generalised.
+[Last time](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part4.md), I stated that our ECS had been completely generalised.
 
 Well, that is not quite true! We have yet to ECS-ify our rendering logic.
 
