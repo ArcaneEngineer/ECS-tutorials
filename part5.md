@@ -47,7 +47,7 @@ function gameLoop()
 processComponents();
 ```
 
-
+You'll notice that `renderEntities()` has been removed entirely.
 
 ### Adding new components
 
