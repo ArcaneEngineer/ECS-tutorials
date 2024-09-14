@@ -452,7 +452,7 @@ This could also have been done via `Array.push()` if you prefer keeping the orig
 
 If you run the code now, you should see some errors, as there are some small bumps to address: Because we removed all named `transforms`, `turrets`, `trackLefts` etc., we now have broken references to these in our systems functions.  You can solve this in one of two ways:
 
-(1) Change the references to pull these arrays off the `ECS` itself (where they were stored on population and initialisation). This adds some overhead lines to system functions, but it means we don't need to store multiple references to the same array. For example:
+***EITHER*** (1) Change the references to pull these arrays off the `ECS` itself (where they were stored on population and initialisation). This adds some overhead lines to system functions, but it means we don't need to store multiple references to the same array. For example:
 
 ```
 function updateMotionFromTracks(e)
@@ -466,7 +466,7 @@ function updateMotionFromTracks(e)
 
 ```
 
-(2) Assign the same names in the global space (i.e.  `window`), from the `ECS`. This way you don't need to update the functions references inside the system functions, because you've got them back. For example, somewhere after calling `populateComponentArrays()`, grab the named references:
+***OR*** (2) Assign the same names in the global space (i.e.  `window`), from the `ECS`. This way you don't need to update the functions references inside the system functions, because you've got them back. For example, somewhere after calling `populateComponentArrays()`, grab the named references:
 
 ```
 const transforms = ECS.componentsByIndex[COMPONENT.TRANSFORM].array;
