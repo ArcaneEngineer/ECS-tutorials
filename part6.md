@@ -341,7 +341,7 @@ class ECS
 			
 			for (let c of entityArcheType)//.componentDeps)
 			{
-				let component = ECS.componentsByIndex[c];
+				let component = ECS.componentsByIndex[];
 				component.init(component.array[e], entitiesRawData[e][c]);
 				component.array[e].isActive = true;
 			}
@@ -350,7 +350,7 @@ class ECS
 }
 ```
 
-These members, which have migrated into `[class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/class) ECS`, previously existed in the population and intialisation phase and near the bottom of [`part5.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part5.md). Their contents remain identical. Go ahead and cull the original functions now.
+These members, which have migrated into [`class`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/class)`ECS`, previously existed in the population and intialisation phase and near the bottom of [`part5.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part5.md). Their contents remain identical. Go ahead and cull the original functions now.
 
 They have lost the keyword `function` (as [ES6 class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/class) methods must do) and have become [`static`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/static) `class` methods, but otherwise they remain identical. `static` means we will not need to instantiate `class ECS` in order to use them.
 
@@ -418,7 +418,7 @@ Our ECS is putting on some fat; this is good, as in doing so we are de-clutterin
 
 #### Systems
 
-You'll recall that our systems array in part 5, was as follows:
+You'll recall that our `systems` array in part 5, was as follows:
 
 ```
 //--- Systems (funtions + their dependencies) ---//
@@ -446,13 +446,13 @@ ECS.systems = //replaces the array object assigned to ECS's initial member
 ]
 ```
 
-This could also have been done via `Array.push()` if you prefer keeping the original array in place.
+Or this could be done via `Array.push()` if you prefer using the existing `ECS.systems` array.
 
 #### Fixing systems to work with the new ECS
 
-If you run the code now, you should see some errors, as there are some small bumps to address: Because we removed all named `transforms`, `turrets`, `trackLefts` etc., we now have broken references to these in our systems functions.  You can solve this in one of two ways:
+If you run the code now, you should see some errors, as there are some small bumps to address: Because we removed all named `transforms`, `turrets`, `trackLefts` etc., we now have broken references to these inside our systems functions.  You can solve this in one of two ways:
 
-***EITHER*** (1) Change the references to pull these arrays off the `ECS` itself (where they were stored on population and initialisation). This adds some overhead lines to system functions, but it means we don't need to store multiple references to the same array. For example:
+**EITHER** (1) Change the references to pull these arrays off the `ECS` itself (where they were stored on population and initialisation). This adds some overhead lines into system functions, _but_ we don't need to store multiple references to the same array. For example:
 
 ```
 function updateMotionFromTracks(e)
@@ -466,7 +466,7 @@ function updateMotionFromTracks(e)
 
 ```
 
-***OR*** (2) Assign the same names in the global space (i.e.  `window`), from the `ECS`. This way you don't need to update the functions references inside the system functions, because you've got them back. For example, somewhere after calling `populateComponentArrays()`, grab the named references:
+**OR** (2) Assign the same variable names in the global space (i.e.  `window`), pointing to arrays in the `ECS`. You'll fix the system functions, because you've got the named arrays back again. For example, somewhere after calling `populateComponentArrays()`, declare named references to the arrays:
 
 ```
 const transforms = ECS.componentsByIndex[COMPONENT.TRANSFORM].array;
@@ -475,9 +475,9 @@ const motions    = ECS.componentsByIndex[COMPONENT.MOTION]   .array;
 
 ```
 
-I've chosen approach (1), as it eliminates reliance on objects that exist outside the scope of `ECS`. This is probably the better architectural approach as the project grow more complex. Also, it is usually wisest to access data that is identical _from a single source (variable) only_, to avoid potential headaches. In your own projects, it's up to you.
+I've chosen approach (1), as it eliminates reliance on objects that exist outside the scope of `ECS`. This is probably the better architectural approach as the project grows more complex. Also, it is wisest to access data _from a single source (variable) only_, to avoid potential headaches. In your own projects, it's up to you.
 
-Do this for all the broken component references, which you can find by a combination of looking and hitting F5 to refresh your browser page to test-run the code. Check the various `update*` and `render*` systems, or if you get stuck, have a look at [`part6.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part6.js).
+Do (1) or (2) for all the broken component references, which you can find by a combination of looking and hitting F5 to refresh your browser page to test-run the code. Check the various `update*` and `render*` systems, or if you get stuck, have a look at [`part6.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part6.js) which shows solution (1).
 
 #### Getting it running
 
@@ -496,7 +496,7 @@ processComponents(); //to ensure initial render.
 document.addEventListener('keyup', event => { if (event.code === 'Space') gameLoop(); })
 ```
 
-...we'll put the following (you'll recall our `gameLoop` function has already been moved somewhere else): 
+...we'll put the following (recall, our `gameLoop` function has already been moved somewhere else): 
 
 ```
 //--- Kick off processing ---//
