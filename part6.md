@@ -36,7 +36,7 @@ const HULL_WIDTH = 28; // <--- moved
 const HULL_HEIGHT = 34; // <--- moved
 ```
 
-Directly below those, let's put our general purpose functions (or functions that don't qualify as either ECS or component-related) together in one place, directly below the above `const`ants:
+Directly below those, let's put our general purpose functions (or functions that don't qualify as either ECS, component-related, or systems) together in one place, directly below the above `const`ants:
 
 ```
 //--- General purposes functions ---//
