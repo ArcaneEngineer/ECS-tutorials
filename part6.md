@@ -475,7 +475,9 @@ const motions    = ECS.componentsByIndex[COMPONENT.MOTION]   .array;
 
 ```
 
-I've chosen approach (1), as it eliminates reliance on objects that exist outside the scope of `ECS`. This is probably the better architectural approach as the project grows more complex. Also, it is wisest to access data _from a single source (variable) only_, to avoid potential headaches. In your own projects, it's up to you.
+I've chosen approach (1), as it eliminates reliance on objects that exist outside the scope of `ECS`. This is probably the better architectural approach as the project grows more complex. Also, it is wisest to access data _from a single source (variable) only_, to avoid potential headaches.
+
+In your own projects, it's up to you how you do this. Just know that it will affect _all_ your systems, and over time, that will be a great many functions and a great deal of code. So choose wisely.
 
 Do (1) or (2) for all the broken component references, which you can find by a combination of looking and hitting F5 to refresh your browser page to test-run the code. Check the various `update*` and `render*` systems, or if you get stuck, have a look at [`part6.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part6.js) which shows solution (1).
 
