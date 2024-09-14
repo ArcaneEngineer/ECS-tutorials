@@ -10,6 +10,7 @@ authored by Nick the (Arcane) Engineer and Games Developer.
 * Part 2 [Tutorial](part2.md) | [Source Code](part2.js) | [Demo](https://raw.githack.com/ArcaneEngineer/ECS-tutorials/main/part2.html) (Complex components: motion component, turning turrets and bullet entity type)
 * Part 3 [Tutorial](part3.md) | [Source Code](part3.js) | [Demo](https://raw.githack.com/ArcaneEngineer/ECS-tutorials/main/part3.html) (ECS-based initialisation)
 * Part 4 [Tutorial](part4.md) | [Source Code](part4.js) | [Demo](https://raw.githack.com/ArcaneEngineer/ECS-tutorials/main/part4.html) (ECS-based game logic updates)
-* Part 5 [Tutorial](part5.md) | [Source Code](part4.js) | [Demo](https://raw.githack.com/ArcaneEngineer/ECS-tutorials/main/part5.html) (ECS-based rendering)
+* Part 5 [Tutorial](part5.md) | [Source Code](part5.js) | [Demo](https://raw.githack.com/ArcaneEngineer/ECS-tutorials/main/part5.html) (ECS-based rendering)
+* Part 6 [Tutorial](part6.md) | [Source Code](part6.js) | [Demo](https://raw.githack.com/ArcaneEngineer/ECS-tutorials/main/part6.html) (ECS and user code organisation)
 
 Good luck, happy learning!

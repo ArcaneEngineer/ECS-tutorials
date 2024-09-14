@@ -351,7 +351,7 @@ Since what we did was _almost_ pure refactoring, if we now run the code, the out
 
 However, although the end result _looks_ exactly the same, note that we advanced the simulation at the end of the very first frame in our call to `processComponents()` outside the game loop. Thus, _this was not pure refactoring_, since we subtly changed the program's behaviour.
 
-The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part4.js).
+The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part5.js).
 
 
 ## Conclusion
