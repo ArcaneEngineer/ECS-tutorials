@@ -101,7 +101,7 @@ const TRACK_SPEED_MAX = 5;
 const HULL_WIDTH = 28;
 const HULL_HEIGHT = 34;
 
-//--- General purposes functions ---//
+//--- General purpose functions ---//
 
 let turn = 0;
 function gameLoop()
