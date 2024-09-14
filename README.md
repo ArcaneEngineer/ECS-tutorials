@@ -6,7 +6,7 @@ How to implement an **Entity Component System (ECS)**
 
 authored by Nick the (Arcane) Engineer and Games Developer.
 
-A tutorial series for those who want to understand the _process_ by which an ECS _evolves_ from a naïve initial implementation to something more powerful.
+Written for those who want to understand the _process_ by which an ECS _evolves_ from a naïve initial implementation to something more powerful.
 
 * Part 1 [Tutorial](part1.md) | [Source Code](part1.js) | [Demo](https://raw.githack.com/ArcaneEngineer/ECS-tutorials/main/part1.html) (ECS foundations with simple components)
 * Part 2 [Tutorial](part2.md) | [Source Code](part2.js) | [Demo](https://raw.githack.com/ArcaneEngineer/ECS-tutorials/main/part2.html) (Complex components: motion component, turning turrets and bullet entity type)
