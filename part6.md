@@ -2,7 +2,7 @@
 
 [Last time](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part5.md), we had our ECS completely generalised.
 
-In this lesson, we will look at thoroughly cleaning up our single-file project script.
+In this lesson, we will look at encapsulating ECS-specific logic and collections, while thoroughly cleaning up the rest of our single-file project script.
 
 ## Technical overview
 
