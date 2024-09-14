@@ -362,4 +362,4 @@ All those conditionals we previously had in the `renderEntities()` function we d
 
 It now _begins_ to look like a real ECS, though there is no shortage of improvements still to be made.
 
-In the next part, we will look at how we can better organise our code, and we'll add the ability for tanks' bullets to hit other tanks!
+In the next part, we will look at how we can better organise our code, before implementing new gameplay features.
