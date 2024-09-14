@@ -8,14 +8,9 @@ In this lesson, we will look at encapsulating ECS-specific logic and collections
 
 For each part of this tutorial series, I prefer to keep source code in a _single_ `.js` file.
 
-Because of this, organisation within blocks of code (`{...}`) is important; without these, you cannot use your favourite editor (VS Code, Notepad++, or what have you) to focus on the relevant code via [_code folding_](https://en.wikipedia.org/wiki/Code_folding). As our source file has become quite long, this has become urgent.
+Because of this, organisation using blocks of code (`{...}`) is important; without these, you cannot use your favourite editor (VS Code, Notepad++, or what have you) to focus on the relevant code via [_code folding_](https://en.wikipedia.org/wiki/Code_folding). As our source file has become quite long, this has become urgent. This refactoring will allow us to move more quickly in future tutorials, instead of scrolling through reams of code.
 
-Our current refactoring will allow us to move more quickly in future tutorials, instead of scrolling through reams of code.
-
-As usual, I suggest downloading the project from [github](https://github.com/ArcaneEngineer/ECS-tutorials)
- and using a [diff](https://www.google.com/search?q=diff+meaning) tool to compare [`part5.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part5.js) against [`part6.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part6.js). I love using [kdiff3](https://kdiff3.sourceforge.net/) -- it allows 3-way diffs.
- 
- It is worth noting that diff between parts 5 and 6 is substantial, as much code is reorded, or nested, in part 6 -- however, the internal logic of functions and the definition of component prototypes has not changed _at all_ (which you can see by careful examination of the diff).
+As usual, I suggest downloading the project from [github](https://github.com/ArcaneEngineer/ECS-tutorials) and using a [diff](https://www.google.com/search?q=diff+meaning) tool to compare [`part5.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part5.js) against [`part6.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part6.js). I love using [kdiff3](https://kdiff3.sourceforge.net/) -- it allows 3-way diffs. The diff between parts 5 and 6 is substantial, as much code is reorded, or nested, in part 6 -- however, aside from a few references in our system functions, the internal logic of functions and the definition of component prototypes has not changed _at all_.
 
 ## Refactoring the Code
 
