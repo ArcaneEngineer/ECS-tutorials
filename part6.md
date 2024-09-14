@@ -73,8 +73,6 @@ Right, now we can proceed with the real meat and bones of this refactoring!
 
 Let us organise our component prototypes with their related initialisers. This is purely cosmetic, and allows us to do code folding when we need it.
 
-(In Javascript, there is always a slight runtime overhead when one has to access objects or functions that exist within other objects or functions, but on modern browsers, these overheads are typically tiny -- well worth the organisational ease it brings.)
-
 First, let's remove entirely all instances of `*Prototype` (`transformPrototype`, `turretPrototype`, etc.).
 Second, let's remove entirely all instances of `init*` (`initTransform`, `initTurret`, etc.).
 
@@ -205,7 +203,7 @@ const track =
 }
 ```
 
-As you can see, each initialiser is now with its associated [POD](https://en.wikipedia.org/wiki/Passive_data_structure) prototype in a kind of organisational "folder" object (`transform`, `hull` etc.). We do not put the function into the prototype because the initialiser function does not need to be copied or take up space for every instantiated data component: it is a single, universal function that is used identically by our ECS, for all entities.
+As you can see, each initialiser is now with its associated [POD](https://en.wikipedia.org/wiki/Passive_data_structure) prototype in a kind of organisational "folder" object (`transform`, `hull` etc.). We do not put the initialiser function into the prototype because this function does not need to be copied or take up space for every instantiated data component: it is a single, universal function that is used identically by our ECS, for all entities.
 
 Now, further down the source file, you will recall that we previously had a section about components, which we will change from
 
@@ -283,7 +281,7 @@ As you can see, the loop at the end, sets everything up automatically for each t
 
 #### Encapsulating the ECS itself
 
-Let's encapsulate our ECS in a `class`. While you'll recall that I've been very anti-OOP thus far, in order to avoid ECS newcomers from being confused about how inheritance should be used, the time has come to change the rules a bit -- in the name of better organisation.
+Let's encapsulate our ECS in a `class`. While you'll recall that I've been very OOP-avoidant thus far in this series -- to avoid ECS newcomers from being confused about how inheritance is used in ECS -- the time has come to change the rules a bit in the name of better organisation.
 
 ```
 class ECS
@@ -352,9 +350,11 @@ class ECS
 }
 ```
 
-These members, which have migrated into `[class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/class) ECS`, previously existed in the population and intialisation phase and near the bottom of [`part5.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part5.md). Their contents remain identical.
+These members, which have migrated into `[class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/class) ECS`, previously existed in the population and intialisation phase and near the bottom of [`part5.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part5.md). Their contents remain identical. Go ahead and cull the original functions now.
 
-The functions have lost the keyword `function` (as [ES6 class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/class) methods must do) and have become [`static`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/static) `class` methods, but otherwise they remain identical. `static` means we will not need to instantiate `class ECS` in order to use these methods (formerly functions). Instead this `class` acts as a kind of singleton, with singleton functions, and some singleton arrays and object literals, all usable as follows:
+They have lost the keyword `function` (as [ES6 class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/class) methods must do) and have become [`static`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/static) `class` methods, but otherwise they remain identical. `static` means we will not need to instantiate `class ECS` in order to use them.
+
+Instead, this `class` acts as a kind of singleton, with singleton functions, and some singleton arrays and object literals, all usable as follows:
 
 ```
 ECS.systems = [...];
@@ -365,7 +365,7 @@ ECS.processComponents();
 
 (Note to Javascript developers: Our goal here is not to worry about private class members, but rather to focus on ECS architecture, which is very much a C-like programming paradigm -- remembering that C lacks access control modifiers entirely.)
 
-The last thing we want to do here is to move the loop we created in the previous section, into its own ECS method:
+The last thing we want to do here is to move the loop we created in the section above, into its own ECS method:
 
 ```
 for (let componentType of componentTypesByIndex)
@@ -413,7 +413,7 @@ ECS.setUpComponents(componentTypesByIndex);
 
 ...where the loop used to be.
 
-Having five methods now, our ECS is starting to put on some fat; this is good, as in doing so we are de-cluttering our application's initialisation code!
+Our ECS is putting on some fat; this is good, as in doing so we are de-cluttering our application's initialisation code!
 
 
 #### Systems
@@ -510,7 +510,7 @@ document.addEventListener('keyup', event => { if (event.code === 'Space') gameLo
 
 ### Result
 
-Since what we did was pure refactoring, if we now run the code, the output does not differ (the only difference being that the simulation starts advanced by one tick) from parts [2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md) through [5](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part5.md).
+Since what we did was pure refactoring, if we now run the code, the output does not differ from parts [2](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part2.md) through [5](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part5.md).
 
 ![part2_tiny_tanks.png](https://ucarecdn.com/c204fb62-5e6d-43b5-afc4-87980adc47f1/)
 
@@ -520,6 +520,6 @@ The final code can be found on [github](https://github.com/ArcaneEngineer/ECS-tu
 
 Finally, our ECS has become a standalone system which, if so desired, could be pasted into it own source file and loaded by our main script, [`part6.js`](https://github.com/ArcaneEngineer/ECS-tutorials/blob/main/part6.js).
 
-The rest of our code has been organised in such a way that it should clear up all doubts about what is what (and thus, what belongs where). While it is by no means the end of the evolution of our ECS, it gives us some elbow room to work in in future parts.
+The rest of our code has been organised in such a way that it should clear up all doubts about what is what (and thus, what belongs where). While it is by no means the end of the evolution of our ECS, it gives us some elbow room to work with, in future parts.
 
 In the next part, we will look at implementing some new gameplay features.
